@@ -1,5 +1,5 @@
 const { createLogger, transports, format } = require('winston');
-const { DailyRotateFile } = require('winston-daily-rotate-file');
+const DailyRotateFile = require('winston-daily-rotate-file');
 
 const logger = createLogger({
 	format: format.combine(
@@ -11,7 +11,7 @@ const logger = createLogger({
 		})
 	),
 	transports: [
-		transports.Console({ level: 'info' }),
+		new transports.Console({ level: 'info' }), // eslint-disable-line new-cap
 		new DailyRotateFile({
 			format: format.combine(
 				format.timestamp(),

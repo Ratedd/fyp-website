@@ -14,6 +14,14 @@ const routes = () => {
 		res.sendFile(req.originalUrl, { root: './' });
 	});
 
+	externalRoutes.get('/', (req, res) => {
+		res.sendFile('/views/index.html', { root: './' });
+	});
+
+	externalRoutes.get('/login', (req, res) => {
+		res.sendFile('/views/login.html', { root: './' });
+	});
+
 	return externalRoutes;
 };
 
