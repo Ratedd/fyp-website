@@ -1,8 +1,10 @@
 const bodyParser = require('body-parser');
+const server = require('./server.js');
 const logger = require('../util/logger.js');
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
+	const io = server.getSocketIO();
 
 	externalRoutes.use(bodyParser.urlencoded({ extended: true }));
 
@@ -20,6 +22,10 @@ const routes = () => {
 
 	externalRoutes.get('/login', (req, res) => {
 		res.sendFile('/views/login.html', { root: './' });
+	});
+
+	externalRoutes.post('/login_verification', (req, res) => {
+		const { username, password } = req.body;
 	});
 
 	return externalRoutes;
