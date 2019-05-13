@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const server = require('./server.js');
+const api = require('./api.js');
 const logger = require('../util/logger.js');
 
 const routes = () => {
@@ -26,6 +27,13 @@ const routes = () => {
 
 	externalRoutes.post('/login_verification', (req, res) => {
 		const { username, password } = req.body;
+		if (!username && !password) {
+			io.emit('field_empty', 'Please enter username and/or password');
+			return res.redirect('/login');
+		}
+		api.verifyAccount(username, password).then(data => {
+			logger.info(data);
+		});
 	});
 
 	return externalRoutes;
