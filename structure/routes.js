@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const server = require('./server.js');
 const api = require('./api.js');
 const logger = require('../util/logger.js');
+let loggedIn;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -32,7 +33,13 @@ const routes = () => {
 			return res.redirect('/login');
 		}
 		api.verifyAccount(username, password).then(data => {
-			logger.info(data);
+			if (data) {
+				loggedIn = data;
+				res.redirect('/dashboard');
+			} else {
+				io.emit('authentication', 'Invalid username and/or password');
+				return res.redirect('/login');
+			}
 		});
 	});
 
