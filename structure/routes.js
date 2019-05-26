@@ -2,6 +2,9 @@ const bodyParser = require('body-parser');
 const server = require('./server.js');
 const api = require('./api.js');
 const logger = require('../util/logger.js');
+const formidable = require('formidable');
+const fs = require('fs');
+const nodepath = require('path');
 let loggedIn;
 
 const routes = () => {
@@ -24,6 +27,27 @@ const routes = () => {
 
 	externalRoutes.get('/login', (req, res) => {
 		res.sendFile('/views/login.html', { root: './' });
+	});
+
+	externalRoutes.get('/upload', (req, res) => {
+		res.sendFile('/views/upload.html', { root: './' });
+	});
+
+	externalRoutes.post('/upload_file', (req, res) => {
+		const form = new formidable.IncomingForm();
+		form.parse(req, (err, fields, files) => {
+			const { path, name } = files.file;
+			const newPath = nodepath.join(process.cwd(), '/uploads/', name);
+			fs.readFile(path, (readErr, data) => {
+				fs.writeFile(newPath, data, writeErr => {
+					fs.unlink(path, unlinkErr => {
+						if (!readErr || !writeErr || !unlinkErr || !err) {
+							res.status(200).send({ message: 'test' });
+						}
+					});
+				});
+			});
+		});
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
