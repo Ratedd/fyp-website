@@ -1,10 +1,10 @@
 const bodyParser = require('body-parser');
 const server = require('./server.js');
-const api = require('./api.js');
+const api = require('./apiHelper.js');
 const logger = require('../util/logger.js');
 const formidable = require('formidable');
-const fs = require('fs');
-const nodepath = require('path');
+const uploader = require('../util/uploader.js');
+const Path = require('path');
 let loggedIn;
 
 const routes = () => {
@@ -35,17 +35,26 @@ const routes = () => {
 
 	externalRoutes.post('/upload_file', (req, res) => {
 		const form = new formidable.IncomingForm();
+		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
+			if (err) {
+				io.emit('file_upload_err', { message: 'File too big' });
+				return res.redirect('/upload');
+			}
 			const { path, name } = files.file;
-			const newPath = nodepath.join(process.cwd(), '/uploads/', name);
-			fs.readFile(path, (readErr, data) => {
-				fs.writeFile(newPath, data, writeErr => {
-					fs.unlink(path, unlinkErr => {
-						if (!readErr || !writeErr || !unlinkErr || !err) {
-							res.status(200).send({ message: 'test' });
-						}
-					});
-				});
+			const pName = fields.name;
+			if (!path || !name || !pName) {
+				res.status(200).redirect('/');
+				return;
+			}
+			const uploadDir = Path.join(process.cwd(), '/uploads');
+			const newPath = Path.join(process.cwd(), '/uploads/', `${pName}_${name}`);
+
+			uploader(path, newPath, uploadDir).then(() => {
+				res.status(200).redirect('/');
+			}).catch(uploadErr => {
+				logger.error('[routes - /upload_file]\n', uploadErr);
+				res.status(500).redirect('/login');
 			});
 		});
 	});
