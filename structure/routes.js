@@ -42,16 +42,19 @@ const routes = () => {
 	externalRoutes.post('/announce', (req, res) => {
 		const { message } = req.body;
 		const stringMessage = _.toString(message);
-		const qsMessage = querystring.encode(stringMessage);
-		return console.log(qsMessage);
+		const qsMessage = querystring.escape(stringMessage);
 		api.getSubscribers().then(data => {
-			api.sendAnnouncement(data).then(done => {
-
+			api.sendAnnouncement(data, qsMessage).then(done => {
+				if (done) {
+					res.status(200).redirect('/');
+				}
 			}).catch(err => {
-
+				logger.error(err);
+				res.status(500).redirect('/');
 			});
 		}).catch(err => {
 			logger.error(err);
+			res.status(500).redirect('/');
 		});
 	});
 

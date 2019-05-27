@@ -22,9 +22,12 @@ const api = {
 	sendAnnouncement: (data, message) => new Promise((resolve, reject) => {
 		data.forEach(subscriber => {
 			setTimeout(() => {
-				fetch(`https://api.telegram.org/bot784702199:AAGVh6-L9oQXraAZJTvmn-yhH8qUD384ZH8/sendMessage?chat_id=${subscriber.id}&text=${message}`, { method: 'POST' }).then(res => res.text());
+				fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${subscriber.id}&text=${message}`, { method: 'POST' })
+					.then(res => res.json())
+					.catch(err => reject(err));
 			}, 2000);
 		});
+		resolve(true);
 	})
 };
 
