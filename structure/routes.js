@@ -5,6 +5,8 @@ const logger = require('../util/logger.js');
 const formidable = require('formidable');
 const uploader = require('../util/uploader.js');
 const Path = require('path');
+const _ = require('lodash');
+const querystring = require('querystring');
 let loggedIn;
 
 const routes = () => {
@@ -29,8 +31,28 @@ const routes = () => {
 		res.sendFile('/views/login.html', { root: './' });
 	});
 
+	externalRoutes.get('/dashboard', (req, res) => {
+		res.sendFile('/views/dashboard.html', { root: './' });
+	});
+
 	externalRoutes.get('/upload', (req, res) => {
 		res.sendFile('/views/upload.html', { root: './' });
+	});
+
+	externalRoutes.post('/announce', (req, res) => {
+		const { message } = req.body;
+		const stringMessage = _.toString(message);
+		const qsMessage = querystring.encode(stringMessage);
+		return console.log(qsMessage);
+		api.getSubscribers().then(data => {
+			api.sendAnnouncement(data).then(done => {
+
+			}).catch(err => {
+
+			});
+		}).catch(err => {
+			logger.error(err);
+		});
 	});
 
 	externalRoutes.post('/upload_file', (req, res) => {
