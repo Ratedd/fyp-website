@@ -28,18 +28,30 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/login', (req, res) => {
-		res.sendFile('/views/login.html', { root: './' });
+		if (!loggedIn) {
+			return res.sendFile('/views/login.html', { root: './' });
+		}
+		res.redirect('/dashboard');
 	});
 
 	externalRoutes.get('/dashboard', (req, res) => {
+		if (!loggedIn) {
+			return res.redirect('/login');
+		}
 		res.sendFile('/views/dashboard.html', { root: './' });
 	});
 
 	externalRoutes.get('/upload', (req, res) => {
+		if (!loggedIn) {
+			return res.redirect('/login');
+		}
 		res.sendFile('/views/upload.html', { root: './' });
 	});
 
 	externalRoutes.post('/announce', (req, res) => {
+		if (!loggedIn) {
+			return res.sendFile('/views/login.html', { root: './' });
+		}
 		const { message } = req.body;
 		const stringMessage = _.toString(message);
 		const qsMessage = querystring.escape(stringMessage);
@@ -59,6 +71,9 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/upload_file', (req, res) => {
+		if (!loggedIn) {
+			return res.redirect('/login');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
