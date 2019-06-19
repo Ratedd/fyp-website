@@ -8,6 +8,7 @@ const server = {
 	getSocketIO: () => io,
 	startServer: port => {
 		const externalRoutes = require('./routes.js');
+		app.set('view engine', 'ejs');
 		app.use('/', externalRoutes);
 		httpServer.listen(port, () => {
 			logger.info(`Server started on port ${port}`);

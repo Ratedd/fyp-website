@@ -1,13 +1,13 @@
 const bodyParser = require('body-parser');
 const server = require('./server.js');
-const api = require('./apiHelper.js');
+const apiHelper = require('./apiHelper.js');
 const logger = require('../util/logger.js');
 const formidable = require('formidable');
 const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let loggedIn;
+let loggedIn = true;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -24,7 +24,7 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/', (req, res) => {
-		res.sendFile('/views/index.html', { root: './' });
+		res.render('index', { user: loggedIn });
 	});
 
 	externalRoutes.get('/login', (req, res) => {
@@ -55,8 +55,8 @@ const routes = () => {
 		const { message } = req.body;
 		const stringMessage = _.toString(message);
 		const qsMessage = querystring.escape(stringMessage);
-		api.getSubscribers().then(data => {
-			api.sendAnnouncement(data, qsMessage).then(done => {
+		apiHelper.getSubscribers().then(data => {
+			apiHelper.sendAnnouncement(data, qsMessage).then(done => {
 				if (done) {
 					res.status(200).redirect('/');
 				}
@@ -105,7 +105,7 @@ const routes = () => {
 			io.emit('field_empty', 'Please enter username and/or password');
 			return res.redirect('/login');
 		}
-		api.verifyAccount(username, password).then(data => {
+		apiHelper.verifyAccount(username, password).then(data => {
 			if (data) {
 				loggedIn = data;
 				res.redirect('/dashboard');

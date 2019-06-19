@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const api = {
+const apiHelper = {
 	verifyAccount: (inputUsername, inputPassword) => new Promise((resolve, reject) => {
 		const data = {
 			username: inputUsername,
@@ -31,4 +31,4 @@ const api = {
 	})
 };
 
-module.exports = api;
+module.exports = apiHelper;
