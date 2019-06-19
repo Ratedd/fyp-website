@@ -7,7 +7,7 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let loggedIn = true;
+let loggedIn;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -29,7 +29,7 @@ const routes = () => {
 
 	externalRoutes.get('/login', (req, res) => {
 		if (!loggedIn) {
-			return res.sendFile('/views/login.html', { root: './' });
+			return res.render('login');
 		}
 		res.redirect('/dashboard');
 	});
@@ -38,19 +38,19 @@ const routes = () => {
 		if (!loggedIn) {
 			return res.redirect('/login');
 		}
-		res.sendFile('/views/dashboard.html', { root: './' });
+		res.render('dashboard', { user: loggedIn });
 	});
 
 	externalRoutes.get('/upload', (req, res) => {
 		if (!loggedIn) {
 			return res.redirect('/login');
 		}
-		res.sendFile('/views/upload.html', { root: './' });
+		res.render('upload');
 	});
 
 	externalRoutes.post('/announce', (req, res) => {
 		if (!loggedIn) {
-			return res.sendFile('/views/login.html', { root: './' });
+			return res.redirect('/login');
 		}
 		const { message } = req.body;
 		const stringMessage = _.toString(message);
