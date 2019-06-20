@@ -1,5 +1,7 @@
 const bodyParser = require('body-parser');
 const server = require('./server.js');
+const session = require('express-session');
+const DynamoDBStore = require('dynamodb-store');
 const apiHelper = require('./apiHelper.js');
 const logger = require('../util/logger.js');
 const formidable = require('formidable');
@@ -7,12 +9,20 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let loggedIn;
 let failed = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
 	const io = server.getSocketIO();
+
+	externalRoutes.use(session({
+		secret: 'alumni',
+		resave: false,
+		saveUninitialized: false,
+		store: new DynamoDBStore({
+			table: { name: 'sessions' }
+		})
+	}));
 
 	externalRoutes.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,35 +35,35 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/', (req, res) => {
-		res.render('index', { user: loggedIn });
+		res.render('index', { user: req.session.user });
 	});
 
 	externalRoutes.get('/login', (req, res) => {
-		if (!loggedIn) {
+		if (!req.session.user) {
 			return res.render('login', { loginFailed: failed });
 		}
-		res.redirect('/dashboard');
+		res.redirect('/admin');
 	});
 
 	externalRoutes.get('/admin', (req, res) => {
-		if (!loggedIn) {
+		if (!req.session && !req.session.user.uuid) {
 			return res.redirect('/login');
 		}
-		if (loggedIn.isAdmin) {
-			return res.render('admin', { user: loggedIn });
-		}
+		// if (req.session.user.isAdmin) {
+		// 	return res.render('admin', { user: req.session.user });
+		// }
 		return res.redirect('/');
 	});
 
 	externalRoutes.get('/upload', (req, res) => {
-		if (!loggedIn) {
+		if (!req.session && !req.session.user.uuid) {
 			return res.redirect('/login');
 		}
 		res.render('upload');
 	});
 
 	externalRoutes.post('/announce', (req, res) => {
-		if (!loggedIn) {
+		if (!req.session && !req.session.user.uuid) {
 			return res.redirect('/login');
 		}
 		const { message } = req.body;
@@ -75,7 +85,7 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/upload_file', (req, res) => {
-		if (!loggedIn) {
+		if (!req.session && !req.session.user.uuid) {
 			return res.redirect('/login');
 		}
 		const form = new formidable.IncomingForm();
@@ -104,22 +114,33 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
-		failed = 2;
+		req.session.user = {
+			uuid: '123',
+			username: 'test',
+			isAdmin: true
+		};
 		res.redirect('/login');
 		// const { username, password } = req.body;
 		// if (!username && !password) {
-		// 	io.emit('field_empty', 'Please enter username and/or password');
+		// 	failed = 3;
 		// 	return res.redirect('/login');
 		// }
 		// apiHelper.verifyAccount(username, password).then(data => {
 		// 	if (data) {
-		// 		loggedIn = data;
-		// 		res.redirect('/dashboard');
+		// 		req.session.user = data;
+		// 		res.redirect('/');
 		// 	} else {
-		// 		io.emit('authentication', 'Invalid username and/or password');
+		// 		failed = 1;
 		// 		return res.redirect('/login');
 		// 	}
 		// });
+	});
+
+	externalRoutes.get('/logout', (req, res) => {
+		if (req.session && req.session.user) {
+			req.session.destroy(err => logger.error(err));
+		}
+		return res.redirect('/');
 	});
 
 	return externalRoutes;
