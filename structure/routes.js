@@ -8,6 +8,7 @@ const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
 let loggedIn;
+let failed = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -29,16 +30,19 @@ const routes = () => {
 
 	externalRoutes.get('/login', (req, res) => {
 		if (!loggedIn) {
-			return res.render('login');
+			return res.render('login', { loginFailed: failed });
 		}
 		res.redirect('/dashboard');
 	});
 
-	externalRoutes.get('/dashboard', (req, res) => {
+	externalRoutes.get('/admin', (req, res) => {
 		if (!loggedIn) {
 			return res.redirect('/login');
 		}
-		res.render('dashboard', { user: loggedIn });
+		if (loggedIn.isAdmin) {
+			return res.render('admin', { user: loggedIn });
+		}
+		return res.redirect('/');
 	});
 
 	externalRoutes.get('/upload', (req, res) => {
@@ -100,20 +104,22 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
-		const { username, password } = req.body;
-		if (!username && !password) {
-			io.emit('field_empty', 'Please enter username and/or password');
-			return res.redirect('/login');
-		}
-		apiHelper.verifyAccount(username, password).then(data => {
-			if (data) {
-				loggedIn = data;
-				res.redirect('/dashboard');
-			} else {
-				io.emit('authentication', 'Invalid username and/or password');
-				return res.redirect('/login');
-			}
-		});
+		failed = 2;
+		res.redirect('/login');
+		// const { username, password } = req.body;
+		// if (!username && !password) {
+		// 	io.emit('field_empty', 'Please enter username and/or password');
+		// 	return res.redirect('/login');
+		// }
+		// apiHelper.verifyAccount(username, password).then(data => {
+		// 	if (data) {
+		// 		loggedIn = data;
+		// 		res.redirect('/dashboard');
+		// 	} else {
+		// 		io.emit('authentication', 'Invalid username and/or password');
+		// 		return res.redirect('/login');
+		// 	}
+		// });
 	});
 
 	return externalRoutes;

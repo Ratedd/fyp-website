@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<% include partials/scripts %>
-		<title>DMIT Alumni</title>
+		<title>Administrative Panel</title>
 	</head>
 	<body class="bg-dark">
 		<div class="container-fluid">
@@ -17,16 +17,22 @@
 						<li class="nav-item">
 							<a class="nav-link" href="/">Home</a>
 						</li>
+						<%
+							if (!user) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
 							<span class="sr-only">(current)</span>
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item active" href="/login">Login  <span class="sr-only">(current)</span></a>
+								<a class="dropdown-item active" href="/login">Login</a>
 								<a class="dropdown-item" href="/register">Register</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Events
@@ -36,6 +42,15 @@
 								<a class="dropdown-item" href="/upcoming">Upcoming Events</a>
 							</div>
 						</li>
+						<%
+							if (user && user.isAdmin) {
+						%>
+						<li class="nav-item">
+							<a class="nav-link active" href="/admin">Administrative Panel<span class="sr-only">(current)</span></a>
+						</li>
+						<%
+							}
+						%>
 					</ul>
 				</div>
 			</nav>
@@ -47,42 +62,16 @@
 						<div class="col-md-6">
 							<div class="card card-outline-secondary">
 						  		<div class="card-header bg-dark">
-									<h3 class="mb-0 text-white">Login</h3>
+									<h3 class="mb-0 text-white">Administrative Panel</h3>
 						  		</div>
 						  		<div class="card-body">
-									<form class="form" action="/login_verification" method="POST">
+									<form class="form" action="/announce" method="POST">
 										<div class="form-group">
-											<label>Username</label> 
-											<input class="form-control" id="username" name="username" required type="text">
-							  			</div>
-							  			<div class="form-group">
-											<label>Password</label> 
-											<input class="form-control" id="password" required type="password">
+											<label>Make an announcement</label> 
+											<textarea class="form-control" id="message" name="message" placeholder="Input announcement"></textarea>
 							  			</div>
 							  			<div class="form-check small"></div>
-										<button class="btn btn-info btn-lg" type="submit">Login</button>
-										<%
-											switch (loginFailed) {
-												case 1:
-										%>
-												<br><br>
-												<div class="alert alert-warning" role="alert">
-													Username or Password is incorrect!
-												</div>
-										<%
-													break;
-												case 2:
-										%>
-												<br><br>
-												<div class="alert alert-danger" role="alert">
-													Internal Server Error
-												</div>
-										<%
-													break;
-												default:
-													break;
-											}
-										%>
+										<button class="btn btn-info btn-lg" type="submit">Announce</button>
 									</form>
 						  		</div>
 							</div>
