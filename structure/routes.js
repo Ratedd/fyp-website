@@ -17,7 +17,7 @@ const routes = () => {
 
 	externalRoutes.use(session({
 		secret: 'alumni',
-		resave: false,
+		resave: true,
 		saveUninitialized: false,
 		store: new DynamoDBStore({
 			AWSConfigJSON: {
@@ -126,10 +126,10 @@ const routes = () => {
 			req.session.user = {
 				uuid: '123',
 				username: 'test',
-				isAdmin: true
+				isAdmin: false
 			};
-			res.redirect('/');
 		}
+		res.redirect('/');
 		// const { username, password } = req.body;
 		// if (!username && !password) {
 		// 	failed = 3;
@@ -146,15 +146,16 @@ const routes = () => {
 		// });
 	});
 
-	externalRoutes.get('/logout', (req, res) => {
-		if (req.session && req.session.user) {
+	externalRoutes.post('/logout', (req, res) => {
+		if (req.session.user) {
 			req.session.destroy(err => {
 				if (err) {
 					logger.error('[routes - /logout]\n', err);
 				}
 			});
+			failed = 4;
 		}
-		return res.redirect('/');
+		return res.redirect('/login');
 	});
 
 	return externalRoutes;

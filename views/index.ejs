@@ -44,9 +44,18 @@
 						<%
 							if (user && user.isAdmin) {
 						%>
-						<li class="nav-item active">
+						<li class="nav-item">
 							<a class="nav-link" href="/admin">Administrative Panel</a>
 						</li>
+						<%
+							}
+						%>
+						<%
+							if (user) {
+						%>
+						<form action="/logout" method="POST" class="form-inline my-2 my-lg-0">
+							<button class="btn btn-outline-success my-2 my-sm-0 float-right" type="submit">Logout</button>
+						</form>
 						<%
 							}
 						%>
