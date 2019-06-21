@@ -1,7 +1,7 @@
 const bodyParser = require('body-parser');
 const server = require('./server.js');
 const session = require('express-session');
-const DynamoDBStore = require('dynamodb-store');
+const DynamoDBStore = require('connect-dynamodb')(session);
 const apiHelper = require('./apiHelper.js');
 const logger = require('../util/logger.js');
 const formidable = require('formidable');
@@ -9,7 +9,7 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let failed = 0;
+let failed = 0; // eslint-disable-line
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -20,7 +20,11 @@ const routes = () => {
 		resave: false,
 		saveUninitialized: false,
 		store: new DynamoDBStore({
-			table: { name: 'sessions' }
+			AWSConfigJSON: {
+				accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+				region: process.env.AWS_REGION
+			}
 		})
 	}));
 
@@ -119,7 +123,7 @@ const routes = () => {
 			username: 'test',
 			isAdmin: true
 		};
-		res.redirect('/login');
+		res.redirect('/');
 		// const { username, password } = req.body;
 		// if (!username && !password) {
 		// 	failed = 3;
