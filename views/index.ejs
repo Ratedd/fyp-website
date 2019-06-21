@@ -41,6 +41,15 @@
 								<a class="dropdown-item" href="/upcoming">Upcoming Events</a>
 							</div>
 						</li>
+						<%
+							if (user && user.isAdmin) {
+						%>
+						<li class="nav-item active">
+							<a class="nav-link" href="/admin">Administrative Panel</a>
+						</li>
+						<%
+							}
+						%>
 					</ul>
 				</div>
 			</nav>

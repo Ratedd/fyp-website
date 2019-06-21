@@ -50,24 +50,24 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/admin', (req, res) => {
-		if (!req.session && !req.session.user.uuid) {
+		if (!req.session.user) {
 			return res.redirect('/login');
 		}
-		// if (req.session.user.isAdmin) {
-		// 	return res.render('admin', { user: req.session.user });
-		// }
-		return res.redirect('/');
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
+		return res.render('admin', { user: req.session.user });
 	});
 
 	externalRoutes.get('/upload', (req, res) => {
-		if (!req.session && !req.session.user.uuid) {
+		if (!req.session.user) {
 			return res.redirect('/login');
 		}
 		res.render('upload');
 	});
 
 	externalRoutes.post('/announce', (req, res) => {
-		if (!req.session && !req.session.user.uuid) {
+		if (!req.session.user) {
 			return res.redirect('/login');
 		}
 		const { message } = req.body;
@@ -89,7 +89,7 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/upload_file', (req, res) => {
-		if (!req.session && !req.session.user.uuid) {
+		if (!req.session.user) {
 			return res.redirect('/login');
 		}
 		const form = new formidable.IncomingForm();
@@ -118,12 +118,14 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
-		req.session.user = {
-			uuid: '123',
-			username: 'test',
-			isAdmin: true
-		};
-		res.redirect('/');
+		if (!req.session.user) {
+			req.session.user = {
+				uuid: '123',
+				username: 'test',
+				isAdmin: false
+			};
+			res.redirect('/');
+		}
 		// const { username, password } = req.body;
 		// if (!username && !password) {
 		// 	failed = 3;
@@ -142,7 +144,11 @@ const routes = () => {
 
 	externalRoutes.get('/logout', (req, res) => {
 		if (req.session && req.session.user) {
-			req.session.destroy(err => logger.error(err));
+			req.session.destroy(err => {
+				if (err) {
+					logger.error('[routes - /logout]\n', err);
+				}
+			});
 		}
 		return res.redirect('/');
 	});
