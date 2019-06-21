@@ -9,7 +9,7 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let failed = 0; // eslint-disable-line
+let failed = 0; // eslint-disable-line prefer-const
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -44,7 +44,11 @@ const routes = () => {
 
 	externalRoutes.get('/login', (req, res) => {
 		if (!req.session.user) {
-			return res.render('login', { loginFailed: failed });
+			return res.render('login', { user: req.session.user, loginFailed: failed });
+		}
+
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
 		}
 		res.redirect('/admin');
 	});
@@ -122,7 +126,7 @@ const routes = () => {
 			req.session.user = {
 				uuid: '123',
 				username: 'test',
-				isAdmin: false
+				isAdmin: true
 			};
 			res.redirect('/');
 		}
