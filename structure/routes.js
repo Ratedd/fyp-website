@@ -71,7 +71,10 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/workshops', (req, res) => {
-		apiHelper.getWorkshops().then(data => res.render('workshops', { user: req.session.user, workshops: data })).catch(err => {
+		apiHelper.getWorkshops().then(data => {
+			logger.info('workshopData', data);
+			res.render('workshops', { user: req.session.user, workshops: data });
+		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
 			return res.redirect('/');
 		});

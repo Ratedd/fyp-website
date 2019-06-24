@@ -34,6 +34,12 @@ const apiHelper = {
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
+	}),
+	getWorkshops: () => new Promise((resolve, reject) => {
+		fetch('http://localhost:3000/api/workshops')
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
 	})
 };
 
