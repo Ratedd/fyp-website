@@ -63,6 +63,20 @@ const routes = () => {
 		return res.render('admin', { user: req.session.user });
 	});
 
+	externalRoutes.get('/events', (req, res) => {
+		apiHelper.getEvents().then(data => res.render('events', { user: req.session.user, events: data })).catch(err => {
+			logger.error('[routes - /events]\n', err);
+			return res.redirect('/');
+		});
+	});
+
+	externalRoutes.get('/workshops', (req, res) => {
+		apiHelper.getWorkshops().then(data => res.render('workshops', { user: req.session.user, workshops: data })).catch(err => {
+			logger.error('[routes - /events]\n', err);
+			return res.redirect('/');
+		});
+	});
+
 	externalRoutes.get('/upload', (req, res) => {
 		if (!req.session.user) {
 			return res.redirect('/login');
@@ -74,7 +88,13 @@ const routes = () => {
 		if (!req.session.user) {
 			return res.redirect('/login');
 		}
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		const { message } = req.body;
+		if (!message) {
+			return res.redirect('/admin', { user: req.session.user });
+		}
 		const stringMessage = _.toString(message);
 		const qsMessage = querystring.escape(stringMessage);
 		apiHelper.getSubscribers().then(data => {

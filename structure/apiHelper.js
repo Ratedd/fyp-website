@@ -28,6 +28,12 @@ const apiHelper = {
 			}, 2000);
 		});
 		resolve(true);
+	}),
+	getEvents: () => new Promise((resolve, reject) => {
+		fetch('http://localhost:3000/api/events')
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
 	})
 };
 
