@@ -9,7 +9,7 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-let failed = 0; // eslint-disable-line prefer-const
+let failed = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
