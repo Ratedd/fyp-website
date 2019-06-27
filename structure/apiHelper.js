@@ -40,6 +40,12 @@ const apiHelper = {
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
+	}),
+	getWorkshopByUUID: uuid => new Promise((resolve, reject) => {
+		fetch(`http://localhost:3000/api/workshop/${uuid}`)
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
 	})
 };
 

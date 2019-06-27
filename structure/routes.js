@@ -9,7 +9,9 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
+const uuid = require('uuid/v4');
 let failed = 0;
+let fileUploadError = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -77,6 +79,56 @@ const routes = () => {
 		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
 			return res.redirect('/');
+		});
+	});
+
+	externalRoutes.post('/addworkshop', (req, res) => {
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
+
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
+		const form = new formidable.IncomingForm();
+		form.maxFileSize = 200 * 1024 * 1024;
+		form.parse(req, async (err, fields, files) => {
+			if (err) {
+				fileUploadError = 1;
+				return res.redirect('/admin');
+			}
+			let workshopUUID = uuid();
+			let uuidUsed = false;
+			let newUUID;
+			const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(err => logger.error(err));
+
+			if (uuidExist) {
+				uuidUsed = true;
+			}
+
+			while (uuidUsed) {
+				newUUID = uuid();
+				const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(err => logger.error(err));
+
+				if (dataUUID) continue;
+				uuidUsed = false;
+				workshopUUID = newUUID;
+			}
+			const { path, name } = files.file;
+			const pName = fields.name;
+			if (!path || !name || !pName) {
+				return res.redirect('/admin');
+			}
+			const uploadDir = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/');
+			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${workshopUUID}_${pName}_${name}`);
+			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${workshopUUID}`);
+
+			uploader(path, newPath, uploadDir).then(() => {
+				res.redirect('/admin');
+			}).catch(uploadErr => {
+				logger.error('[routes - /upload_file]\n', uploadErr);
+				res.redirect('/admin');
+			});
 		});
 	});
 
