@@ -46,6 +46,12 @@ const apiHelper = {
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
+	}),
+	addWorkshop: data => new Promise((resolve, reject) => {
+		fetch('http://localhost:3000/api/addworkshop', { method: 'POST', body: JSON.stringify(data) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
 	})
 };
 

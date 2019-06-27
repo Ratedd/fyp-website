@@ -123,10 +123,23 @@ const routes = () => {
 			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${workshopUUID}_${pName}_${name}`);
 			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${workshopUUID}`);
 
+			const data = {
+				workshopName: fields.workshopName,
+				workshopDesc: fields.workshopDesc,
+				workshopThumbnail: dbPath
+			};
+
+			apiHelper.addWorkshop(data).then(workshop => {
+				logger.info('[routes - /addworkshop]\n', workshop);
+			}).catch(err => {
+				logger.error('[routes - /addworkshop]\n', err);
+				return res.redirect('/admin');
+			});
+
 			uploader(path, newPath, uploadDir).then(() => {
 				res.redirect('/admin');
 			}).catch(uploadErr => {
-				logger.error('[routes - /upload_file]\n', uploadErr);
+				logger.error('[routes - /addworkshop]\n', uploadErr);
 				res.redirect('/admin');
 			});
 		});
