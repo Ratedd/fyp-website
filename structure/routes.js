@@ -136,11 +136,9 @@ const routes = () => {
 				return res.redirect('/admin');
 			});
 
-			uploader(path, newPath, uploadDir).then(() => {
-				res.redirect('/admin');
-			}).catch(uploadErr => {
+			uploader(path, newPath, uploadDir).then(() => res.redirect('/admin')).catch(uploadErr => {
 				logger.error('[routes - /addworkshop]\n', uploadErr);
-				res.redirect('/admin');
+				return res.redirect('/admin');
 			});
 		});
 	});
