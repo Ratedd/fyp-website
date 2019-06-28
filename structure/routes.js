@@ -9,7 +9,6 @@ const uploader = require('../util/uploader.js');
 const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
-const uuid = require('uuid/v4');
 const fs = require('fs');
 let failed = 0;
 let fileUploadError = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = uploader error
@@ -99,36 +98,21 @@ const routes = () => {
 				logger.error('formidable', err);
 				return res.redirect('/admin');
 			}
-			let workshopUUID = uuid();
-			let uuidUsed = false;
-			let newUUID;
-			const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(workshopErr => logger.error(workshopErr));
 
-			if (uuidExist) {
-				uuidUsed = true;
-			}
-
-			while (uuidUsed) {
-				newUUID = uuid();
-				const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(workshopErr => logger.error(workshopErr));
-
-				if (dataUUID) continue;
-				uuidUsed = false;
-				workshopUUID = newUUID;
-			}
 			const { path, name } = files.file;
 			if (!path || !name) {
 				return res.redirect('/admin');
 			}
 			const uploadDir = Path.join(process.cwd(), '/uploads/');
 			const workshopThumbDir = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/');
-			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${workshopUUID}_${name}`);
-			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${workshopUUID}_${name}`);
+			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${name}`);
+			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${name}`);
 
 			const data = {
 				workshopName: fields.workshopName,
-				workshopDesc: fields.workshopDesc,
-				workshopThumbnail: dbPath
+				description: fields.workshopDesc,
+				workshopThumbnail: dbPath,
+				workshopDate: fields.workshopDate
 			};
 
 			const uploadDirExists = fs.existsSync(uploadDir);
