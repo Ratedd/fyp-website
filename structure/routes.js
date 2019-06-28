@@ -12,7 +12,7 @@ const querystring = require('querystring');
 const uuid = require('uuid/v4');
 const fs = require('fs');
 let failed = 0;
-let fileUploadError = 0; // 1 = fs.mkdirSync error, 2 = fs.readFile error,
+let fileUploadError = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = uploader error
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -57,12 +57,12 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/admin', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		return res.render('admin', { user: req.session.user });
 	});
 
@@ -100,22 +100,22 @@ const routes = () => {
 				return res.redirect('/admin');
 			}
 			let workshopUUID = uuid();
-			// let uuidUsed = false;
-			// let newUUID;
-			// const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(workshopErr => logger.error(workshopErr));
+			let uuidUsed = false;
+			let newUUID;
+			const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(workshopErr => logger.error(workshopErr));
 
-			// if (uuidExist) {
-			// 	uuidUsed = true;
-			// }
+			if (uuidExist) {
+				uuidUsed = true;
+			}
 
-			// while (uuidUsed) {
-			// 	newUUID = uuid();
-			// 	const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(workshopErr => logger.error(workshopErr));
+			while (uuidUsed) {
+				newUUID = uuid();
+				const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(workshopErr => logger.error(workshopErr));
 
-			// 	if (dataUUID) continue;
-			// 	uuidUsed = false;
-			// 	workshopUUID = newUUID;
-			// }
+				if (dataUUID) continue;
+				uuidUsed = false;
+				workshopUUID = newUUID;
+			}
 			const { path, name } = files.file;
 			if (!path || !name) {
 				return res.redirect('/admin');
@@ -155,11 +155,13 @@ const routes = () => {
 			apiHelper.addWorkshop(data).then(workshop => {
 				logger.info('[routes - /addworkshop]\n', workshop);
 			}).catch(workshopErr => {
+				fileUploadError = 2;
 				logger.error('[routes - /addworkshop]\n', workshopErr);
 				return res.redirect('/admin');
 			});
 
 			uploader(path, newPath).then(() => res.redirect('/admin')).catch(uploadErr => {
+				fileUploadError = 3;
 				logger.error('[routes - /addworkshop]\n', uploadErr);
 				return res.redirect('/admin');
 			});
@@ -221,7 +223,18 @@ const routes = () => {
 			const uploadDir = Path.join(process.cwd(), '/uploads');
 			const newPath = Path.join(process.cwd(), '/uploads/', `${pName}_${name}`);
 
-			uploader(path, newPath, uploadDir).then(() => {
+			const uploadDirExists = fs.existsSync(uploadDir);
+			if (!uploadDirExists) {
+				fs.mkdirSync(uploadDir, mkErr => {
+					if (mkErr) {
+						fileUploadError = 1;
+						logger.error('[routes - /addworkshop: mkDir() - 1]\n', mkErr);
+						return res.redirect('/');
+					}
+				});
+			}
+
+			uploader(path, newPath).then(() => {
 				res.status(200).redirect('/');
 			}).catch(uploadErr => {
 				logger.error('[routes - /upload_file]\n', uploadErr);
