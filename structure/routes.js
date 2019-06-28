@@ -10,6 +10,7 @@ const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
 const uuid = require('uuid/v4');
+const fs = require('fs');
 let failed = 0;
 let fileUploadError = 0;
 
@@ -56,12 +57,12 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/admin', (req, res) => {
-		if (!req.session.user) {
-			return res.redirect('/login');
-		}
-		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
-		}
+		// if (!req.session.user) {
+		// 	return res.redirect('/login');
+		// }
+		// if (!req.session.user.isAdmin) {
+		// 	return res.redirect('/');
+		// }
 		return res.render('admin', { user: req.session.user });
 	});
 
@@ -83,45 +84,46 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/addworkshop', (req, res) => {
-		if (!req.session.user) {
-			return res.redirect('/login');
-		}
+		// if (!req.session.user) {
+		// 	return res.redirect('/login');
+		// }
 
-		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
-		}
+		// if (!req.session.user.isAdmin) {
+		// 	return res.redirect('/');
+		// }
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, async (err, fields, files) => {
 			if (err) {
 				fileUploadError = 1;
+				logger.error('formidable', err);
 				return res.redirect('/admin');
 			}
 			let workshopUUID = uuid();
-			let uuidUsed = false;
-			let newUUID;
-			const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(err => logger.error(err));
+			// let uuidUsed = false;
+			// let newUUID;
+			// const uuidExist = await apiHelper.getWorkshopByUUID(workshopUUID).catch(workshopErr => logger.error(workshopErr));
 
-			if (uuidExist) {
-				uuidUsed = true;
-			}
+			// if (uuidExist) {
+			// 	uuidUsed = true;
+			// }
 
-			while (uuidUsed) {
-				newUUID = uuid();
-				const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(err => logger.error(err));
+			// while (uuidUsed) {
+			// 	newUUID = uuid();
+			// 	const dataUUID = await apiHelper.getWorkshopByUUID(newUUID).catch(workshopErr => logger.error(workshopErr));
 
-				if (dataUUID) continue;
-				uuidUsed = false;
-				workshopUUID = newUUID;
-			}
+			// 	if (dataUUID) continue;
+			// 	uuidUsed = false;
+			// 	workshopUUID = newUUID;
+			// }
 			const { path, name } = files.file;
-			const pName = fields.name;
-			if (!path || !name || !pName) {
+			if (!path || !name) {
 				return res.redirect('/admin');
 			}
-			const uploadDir = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/');
-			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${workshopUUID}_${pName}_${name}`);
-			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${workshopUUID}`);
+			const uploadDir = Path.join(process.cwd(), '/uploads/');
+			const workshopThumbDir = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/');
+			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${workshopUUID}_${name}`);
+			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${workshopUUID}_${name}`);
 
 			const data = {
 				workshopName: fields.workshopName,
@@ -129,17 +131,33 @@ const routes = () => {
 				workshopThumbnail: dbPath
 			};
 
-			apiHelper.addWorkshop(data).then(workshop => {
-				logger.info('[routes - /addworkshop]\n', workshop);
-			}).catch(err => {
-				logger.error('[routes - /addworkshop]\n', err);
-				return res.redirect('/admin');
-			});
+			const uploadDirExists = fs.existsSync(uploadDir);
+			if (!uploadDirExists) {
+				fs.mkdirSync(uploadDir, mkErr => {
+					if (mkErr) {
+						return res.redirect('/admin');
+					}
+				});
+			}
+			const workshopThumbDirExists = fs.existsSync(workshopThumbDir);
+			if (!workshopThumbDirExists) {
+				fs.mkdirSync(workshopThumbDir, mkErr => {
+					if (mkErr) {
+						return res.redirect('/admin');
+					}
+				});
+			}
+			// apiHelper.addWorkshop(data).then(workshop => {
+			// 	logger.info('[routes - /addworkshop]\n', workshop);
+			// }).catch(workshopErr => {
+			// 	logger.error('[routes - /addworkshop]\n', workshopErr);
+			// 	return res.redirect('/admin');
+			// });
 
-			uploader(path, newPath, uploadDir).then(() => res.redirect('/admin')).catch(uploadErr => {
-				logger.error('[routes - /addworkshop]\n', uploadErr);
-				return res.redirect('/admin');
-			});
+			// uploader(path, newPath, uploadDir, workshopThumbDir).then(() => res.redirect('/admin')).catch(uploadErr => {
+			// 	logger.error('[routes - /addworkshop]\n', uploadErr);
+			// 	return res.redirect('/admin');
+			// });
 		});
 	});
 
