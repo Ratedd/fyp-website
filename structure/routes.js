@@ -12,7 +12,7 @@ const querystring = require('querystring');
 const uuid = require('uuid/v4');
 const fs = require('fs');
 let failed = 0;
-let fileUploadError = 0;
+let fileUploadError = 0; // 1 = fs.mkdirSync error, 2 = fs.readFile error,
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -135,6 +135,8 @@ const routes = () => {
 			if (!uploadDirExists) {
 				fs.mkdirSync(uploadDir, mkErr => {
 					if (mkErr) {
+						fileUploadError = 1;
+						logger.error('[routes - /addworkshop: mkDir() - 1]\n', mkErr);
 						return res.redirect('/admin');
 					}
 				});
@@ -143,21 +145,24 @@ const routes = () => {
 			if (!workshopThumbDirExists) {
 				fs.mkdirSync(workshopThumbDir, mkErr => {
 					if (mkErr) {
+						fileUploadError = 1;
+						logger.error('[routes - /addworkshop: mkDir() - 2]\n', mkErr);
 						return res.redirect('/admin');
 					}
 				});
 			}
-			// apiHelper.addWorkshop(data).then(workshop => {
-			// 	logger.info('[routes - /addworkshop]\n', workshop);
-			// }).catch(workshopErr => {
-			// 	logger.error('[routes - /addworkshop]\n', workshopErr);
-			// 	return res.redirect('/admin');
-			// });
 
-			// uploader(path, newPath, uploadDir, workshopThumbDir).then(() => res.redirect('/admin')).catch(uploadErr => {
-			// 	logger.error('[routes - /addworkshop]\n', uploadErr);
-			// 	return res.redirect('/admin');
-			// });
+			apiHelper.addWorkshop(data).then(workshop => {
+				logger.info('[routes - /addworkshop]\n', workshop);
+			}).catch(workshopErr => {
+				logger.error('[routes - /addworkshop]\n', workshopErr);
+				return res.redirect('/admin');
+			});
+
+			uploader(path, newPath).then(() => res.redirect('/admin')).catch(uploadErr => {
+				logger.error('[routes - /addworkshop]\n', uploadErr);
+				return res.redirect('/admin');
+			});
 		});
 	});
 
