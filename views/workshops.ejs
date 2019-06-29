@@ -80,10 +80,11 @@
 								<table class="table">
 									<thead>
 										<tr>
-										<th scope="col">Workshop Name</th>
-										<th scope="col">Preview</th>
-										<th scope="col">Description</th>
-										<th scope="col">Registration</th>
+											<th scope="col">Workshop Name</th>
+											<th scope="col">Preview</th>
+											<th scope="col">Description</th>
+											<th scope="col">Workshop Date</th>
+											<th scope="col">Registration</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -92,10 +93,11 @@
 												for (const workshop in workshops) {
 										?>
 											<tr>
-											<th scope="row"><%= workshops.name %></th>
-											<td><img class="img-fluid img-thumbnail" src=<%=workshops.thumbnail%>></img></td>
-											<td><%= workshops.description %></td>
-											<td><a href="">Test</a></td>
+											<th scope="row"><%= workshop.workshopName %></th>
+											<td><img class="img-fluid img-thumbnail" src="<%= workshop.workshopThumbnail %>"></img></td>
+											<td><%= workshop.description %></td>
+											<td><%= workshop.workshopDate %></td>
+											<td><a href="/workshop/<%= workshop.uuid %>">Registration</a></td>
 											</tr>
 										<?
 												}
