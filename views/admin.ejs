@@ -81,6 +81,36 @@
 							  			</div>
 							  			<div class="form-check small"></div>
 										<button class="btn btn-info btn-lg" type="submit">Announce</button>
+										<%
+											switch (announcementStatus) {
+												case 1:
+										%>
+												<br><br>
+												<div class="alert alert-success" role="alert">
+													Successfully announced to all subscribers
+												</div>
+										<%
+													break;
+												case 2:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													Error sending announcements
+												</div>
+										<%
+													break;
+												case 3:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													Error getting subscribers
+												</div>
+										<%
+													break;
+												default:
+													break;
+											}
+										%>
 									</form>
 						  		</div>
 							</div>
@@ -118,6 +148,44 @@
 							  			</div>
 							  			<div class="form-check small"></div>
 										<button class="btn btn-info btn-lg" type="submit">Add Workshop</button>
+										<%
+											switch (addworkshopStatus) {
+												case 1:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													Failed to create upload folder
+												</div>
+										<%
+													break;
+												case 2:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													Error adding workshop to database
+												</div>
+										<%
+													break;
+												case 3:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													File System Error
+												</div>
+										<%
+													break;
+												case 4:
+										%>
+												<br><br>
+												<div class="alert alert-success" role="alert">
+													Successfully added workshop
+												</div>
+										<%
+													break;
+												default:
+													break;
+											}
+										%>
 									</form>
 						  		</div>
 							</div>
