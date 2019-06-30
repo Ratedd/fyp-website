@@ -88,21 +88,21 @@
 										</tr>
 									</thead>
 									<tbody>
-										<?
+										<%
 											if (workshops) {
-												for (const workshop in workshops) {
-										?>
-											<tr>
-											<th scope="row"><%= workshop.workshopName %></th>
-											<td><img class="img-fluid img-thumbnail" src="<%= workshop.workshopThumbnail %>"></img></td>
-											<td><%= workshop.description %></td>
-											<td><%= workshop.workshopDate %></td>
-											<td><a href="/workshop/<%= workshop.uuid %>">Registration</a></td>
-											</tr>
-										<?
-												}
+												workshops.forEach(function(ws) {
+										%>
+													<tr>
+													<th scope="row"><%= ws.workshopName %></th>
+													<td><img class="img-fluid img-thumbnail" src="<%= ws.workshopThumbnail %>"></img></td>
+													<td><%= ws.description %></td>
+													<td><%= ws.workshopDate %></td>
+													<td><a href="/workshop/<%= ws.uuid %>">Registration</a></td>
+													</tr>
+										<%
+												})
 											}
-										?>
+										%>
 									</tbody>
 								</table>
 						  		</div>

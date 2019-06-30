@@ -57,19 +57,30 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/admin', (req, res) => {
-		if (!req.session.user) {
-			return res.redirect('/login');
-		}
-		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
-		}
-		return res.render('admin', { user: req.session.user });
+		// if (!req.session.user) {
+		// 	return res.redirect('/login');
+		// }
+		// if (!req.session.user.isAdmin) {
+		// 	return res.redirect('/');
+		// }
+		return res.render('admin', { user: req.session.user, announcementStatus, addworkshopStatus });
 	});
 
 	externalRoutes.get('/events', (req, res) => {
 		apiHelper.getEvents().then(data => res.render('events', { user: req.session.user, events: data })).catch(err => {
 			logger.error('[routes - /events]\n', err);
 			return res.redirect('/');
+		});
+	});
+
+	externalRoutes.get('/workshop/:id', (req, res) => {
+		const { id } = req.params;
+		apiHelper.getWorkshopByUUID(id).then(workshop => {
+			logger.info('[routes - /workshop/:id]\n', workshop);
+			res.render('workshop', { data: workshop });
+		}).catch(err => {
+			logger.error('[routes - /workshop/:id]\n', err);
+			res.redirect('/workshops');
 		});
 	});
 
@@ -107,7 +118,7 @@ const routes = () => {
 			const uploadDir = Path.join(process.cwd(), '/uploads/');
 			const workshopThumbDir = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/');
 			const newPath = Path.join(process.cwd(), '/uploads/', 'workshopThumbnails/', `${name}`);
-			const dbPath = Path.join('..', '/uploads/', 'workshopThumbnails', `${name}`);
+			const dbPath = `../uploads/workshopThumbnails/${name}`;
 
 			const data = {
 				workshopName: fields.workshopName,
