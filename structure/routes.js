@@ -13,6 +13,7 @@ const fs = require('fs');
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
+let addeventStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -38,6 +39,10 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/css/*', (req, res) => {
+		res.sendFile(req.originalUrl, { root: './' });
+	});
+
+	externalRoutes.get('/uploads/workshopThumbnails/*', (req, res) => {
 		res.sendFile(req.originalUrl, { root: './' });
 	});
 
@@ -73,6 +78,78 @@ const routes = () => {
 		});
 	});
 
+	externalRoutes.get('/addevent', (req, res) => {
+		// if (!req.session.user) {
+		// 	return res.redirect('/login');
+		// }
+
+		// if (!req.session.user.isAdmin) {
+		// 	return res.redirect('/');
+		// }
+		const form = new formidable.IncomingForm();
+		form.maxFileSize = 200 * 1024 * 1024;
+		form.parse(req, async (err, fields, files) => {
+			if (err) {
+				addeventStatus = 1;
+				logger.error('formidable', err);
+				return res.redirect('/admin');
+			}
+
+			const { path, name } = files.file;
+			if (!path || !name) {
+				return res.redirect('/admin');
+			}
+			const uploadDir = Path.join(process.cwd(), '/uploads/');
+			const eventThumbDir = Path.join(process.cwd(), '/uploads/', 'eventThumbnails/');
+			const newPath = Path.join(process.cwd(), '/uploads/', 'eventThumbnails/', `${name}`);
+			const dbPath = `../uploads/eventThumbnails/${name}`;
+
+			const data = {
+				eventName: fields.eventName,
+				description: fields.eventDesc,
+				eventThumbnail: dbPath,
+				eventDate: fields.eventDate
+			};
+
+			const uploadDirExists = fs.existsSync(uploadDir);
+			if (!uploadDirExists) {
+				fs.mkdirSync(uploadDir, mkErr => {
+					if (mkErr) {
+						addeventStatus = 1;
+						logger.error('[routes - /addevent: mkDir() - 1]\n', mkErr);
+						return res.redirect('/admin');
+					}
+				});
+			}
+			const eventThumbDirExists = fs.existsSync(eventThumbDir);
+			if (!eventThumbDirExists) {
+				fs.mkdirSync(eventThumbDir, mkErr => {
+					if (mkErr) {
+						addeventStatus = 1;
+						logger.error('[routes - /addevent: mkDir() - 2]\n', mkErr);
+						return res.redirect('/admin');
+					}
+				});
+			}
+
+			apiHelper.addWorkshop(data).then(event => {
+				logger.info('[routes - /addevent]\n', event);
+				uploader(path, newPath).then(() => {
+					addeventStatus = 4;
+					res.redirect('/admin');
+				}).catch(uploadErr => {
+					addeventStatus = 3;
+					logger.error('[routes - /addevent]\n', uploadErr);
+					return res.redirect('/admin');
+				});
+			}).catch(eventErr => {
+				addeventStatus = 2;
+				logger.error('[routes - /addevent]\n', eventErr);
+				return res.redirect('/admin');
+			});
+		});
+	});
+
 	externalRoutes.get('/workshop/:id', (req, res) => {
 		const { id } = req.params;
 		apiHelper.getWorkshopByUUID(id).then(workshop => {
@@ -95,13 +172,13 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/addworkshop', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
 
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, async (err, fields, files) => {
