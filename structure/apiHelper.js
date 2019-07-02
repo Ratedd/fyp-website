@@ -6,7 +6,7 @@ const apiHelper = {
 			username: inputUsername,
 			password: inputPassword
 		};
-		fetch('http://localhost:3000/api/verifyaccount', { method: 'POST', body: JSON.stringify(data) })
+		fetch(`${process.env.API_BASE_LINK}/api/verifyaccount`, { method: 'POST', body: JSON.stringify(data) })
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => {
@@ -14,7 +14,7 @@ const apiHelper = {
 			});
 	}),
 	getSubscribers: () => new Promise((resolve, reject) => {
-		fetch('http://localhost:3000/api/getsubscribers')
+		fetch(`${process.env.API_BASE_LINK}/api/getsubscribers`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
@@ -30,25 +30,31 @@ const apiHelper = {
 		resolve(true);
 	}),
 	getEvents: () => new Promise((resolve, reject) => {
-		fetch('http://localhost:3000/api/events')
+		fetch(`${process.env.API_BASE_LINK}/api/events`)
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
+	getEventByUUID: uuid => new Promise((resolve, reject) => {
+		fetch(`${process.env.API_BASE_LINK}/api/event/${uuid}`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
 	}),
 	getWorkshops: () => new Promise((resolve, reject) => {
-		fetch('http://localhost:3000/api/workshops')
+		fetch(`${process.env.API_BASE_LINK}/api/workshops`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
 	}),
 	getWorkshopByUUID: uuid => new Promise((resolve, reject) => {
-		fetch(`http://localhost:3000/api/workshop/${uuid}`)
+		fetch(`${process.env.API_BASE_LINK}/api/workshop/${uuid}`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
 	}),
 	addWorkshop: data => new Promise((resolve, reject) => {
-		fetch('http://localhost:3000/api/addworkshop', { method: 'POST', body: JSON.stringify(data) })
+		fetch(`${process.env.API_BASE_LINK}/api/addworkshop`, { method: 'POST', body: JSON.stringify(data) })
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));

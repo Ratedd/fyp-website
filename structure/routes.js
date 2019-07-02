@@ -72,7 +72,10 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/events', (req, res) => {
-		apiHelper.getEvents().then(data => res.render('events', { user: req.session.user, events: data })).catch(err => {
+		apiHelper.getEvents().then(data => {
+			logger.info('eventData', data);
+			res.render('events', { user: req.session.user, events: data });
+		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
 			return res.redirect('/');
 		});
@@ -150,7 +153,18 @@ const routes = () => {
 		});
 	});
 
-	externalRoutes.get('/workshop/:id', (req, res) => {
+	externalRoutes.get('/event/:id', (req, res) => {
+		const { id } = req.params;
+		apiHelper.getEventByUUID(id).then(event => {
+			logger.info('[routes - /event/:id]\n', event);
+			res.render('event', { data: event });
+		}).catch(err => {
+			logger.error('[routes - /event/:id]\n', err);
+			res.redirect('/events');
+		});
+	});
+
+	externalRoutes.get('/workshop/:id/:web?', (req, res) => {
 		const { id } = req.params;
 		apiHelper.getWorkshopByUUID(id).then(workshop => {
 			logger.info('[routes - /workshop/:id]\n', workshop);
