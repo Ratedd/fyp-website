@@ -62,50 +62,5 @@
 				</div>
 			</nav>
 		</div>
-		<div class="container py-3 text-center">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="row justify-content-center">
-						<div class="col-md-6">
-							<div class="card card-outline-secondary">
-						  		<div class="card-header bg-dark">
-									<h3 class="mb-0 text-white">Login</h3>
-						  		</div>
-						  		<div class="card-body">
-								<table class="table">
-									<thead>
-										<tr>
-											<th scope="col">Event Name</th>
-											<th scope="col">Preview</th>
-											<th scope="col">Description</th>
-											<th scope="col">Event Date</th>
-											<th scope="col">Registration</th>
-										</tr>
-									</thead>
-									<tbody>
-										<%
-											if (events) {
-												events.forEach(function(e) {
-										%>
-													<tr>
-													<th scope="row"><%= e.workshopName %></th>
-													<td><img class="img-fluid img-thumbnail" src="<%= e.workshopThumbnail %>"></img></td>
-													<td><%= e.description %></td>
-													<td><%= e.workshopDate %></td>
-													<td><a href="/workshop/<%= e.uuid %>">Registration</a></td>
-													</tr>
-										<%
-												})
-											}
-										%>
-									</tbody>
-								</table>
-						  		</div>
-							</div>
-					  	</div>
-					</div>
-				</div>
-			</div>
-		</div>
 	</body>
 </html>
