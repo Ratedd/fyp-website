@@ -175,10 +175,6 @@ const routes = () => {
 		});
 	});
 
-	externalRoutes.post('/test', (req, res) => {
-		console.log(req.body);
-	});
-
 	externalRoutes.get('/workshops', (req, res) => {
 		apiHelper.getWorkshops().then(data => {
 			logger.info('workshopData', data);
