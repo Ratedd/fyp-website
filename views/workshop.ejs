@@ -75,7 +75,7 @@
 									<h3 class="mb-0 text-white"><%=data.workshopName%></h3>
 						  		</div>
 						  		<div class="card-body">
-									<form class="form" action="/test" method="POST">
+									<form class="form" action="/upload_file" enctype="multipart/form-data" method="POST">
 										<div class="form-group">
 											<label>Workshop UUID</label><br> 
 											<label class="form-control"><%=data.uuid%></label>
@@ -96,8 +96,7 @@
 										<div class="form-group">
 											<label>Upload CSV</label><br>
 											<input class="form-control" type="file" name="file">
-										  </div>
-            
+										</div>
 							  			<div class="form-check small"></div>
 										<button class="btn btn-info btn-lg" type="submit">Register</button>
 									</form>
