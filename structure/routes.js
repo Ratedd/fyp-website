@@ -164,15 +164,19 @@ const routes = () => {
 		});
 	});
 
-	externalRoutes.get('/workshop/:id/:web?', (req, res) => {
+	externalRoutes.get('/workshop/:id/', (req, res) => {
 		const { id } = req.params;
 		apiHelper.getWorkshopByUUID(id).then(workshop => {
 			logger.info('[routes - /workshop/:id]\n', workshop);
-			res.render('workshop', { data: workshop });
+			res.render('workshop', { user: req.session.user, data: workshop.data });
 		}).catch(err => {
 			logger.error('[routes - /workshop/:id]\n', err);
 			res.redirect('/workshops');
 		});
+	});
+
+	externalRoutes.post('/test', (req, res) => {
+		console.log(req.body);
 	});
 
 	externalRoutes.get('/workshops', (req, res) => {
@@ -186,13 +190,13 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/addworkshop', (req, res) => {
-		if (!req.session.user) {
-			return res.redirect('/login');
-		}
+		// if (!req.session.user) {
+		// 	return res.redirect('/login');
+		// }
 
-		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
-		}
+		// if (!req.session.user.isAdmin) {
+		// 	return res.redirect('/');
+		// }
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
