@@ -48,7 +48,7 @@ const apiHelper = {
 			.catch(err => reject(err));
 	}),
 	getWorkshopByUUID: uuid => new Promise((resolve, reject) => {
-		fetch(`${process.env.API_BASE_LINK}/api/workshop/${uuid}`)
+		fetch(`${process.env.API_BASE_LINK}/api/workshop/${uuid}/true`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));

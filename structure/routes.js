@@ -91,7 +91,7 @@ const routes = () => {
 		// }
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
-		form.parse(req, async (err, fields, files) => {
+		form.parse(req, (err, fields, files) => {
 			if (err) {
 				addeventStatus = 1;
 				logger.error('formidable', err);
@@ -195,7 +195,7 @@ const routes = () => {
 		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
-		form.parse(req, async (err, fields, files) => {
+		form.parse(req, (err, fields, files) => {
 			if (err) {
 				addworkshopStatus = 1;
 				logger.error('formidable', err);
