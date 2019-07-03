@@ -157,7 +157,7 @@ const routes = () => {
 		const { id } = req.params;
 		apiHelper.getEventByUUID(id).then(event => {
 			logger.info('[routes - /event/:id]\n', event);
-			res.render('event', { data: event });
+			res.render('event', { user: req.session.user, data: event.data });
 		}).catch(err => {
 			logger.error('[routes - /event/:id]\n', err);
 			res.redirect('/events');
@@ -186,13 +186,13 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/addworkshop', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
 
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
