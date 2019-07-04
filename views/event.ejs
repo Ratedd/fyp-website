@@ -99,6 +99,45 @@
 										</div>
 							  			<div class="form-check small"></div>
 										<button class="btn btn-info btn-lg" type="submit">Register</button>
+										<%
+											switch (registrationStatus) {
+												case 1:
+										%>
+												<br><br>
+												<div class="alert alert-success" role="alert">
+													Successfully registered for the workshop
+												</div>
+										<%
+													break;
+												case 2:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													File Size Exceeded! Please try a smaller file size.
+												</div>
+										<%
+													break;
+												case 3:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													File System Error. Please contact the web administrator.
+												</div>
+										<%
+													break;
+												case 4:
+										%>
+												<br><br>
+												<div class="alert alert-danger" role="alert">
+													Internal Server Error. If this persists, please contact the web administrator.
+												</div>
+										<%
+										<%
+													break;
+												default:
+													break;
+											}
+										%>
 									</form>
 						  		</div>
 							</div>

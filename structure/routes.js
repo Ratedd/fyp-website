@@ -146,7 +146,7 @@ const routes = () => {
 		const { id } = req.params;
 		apiHelper.getEventByUUID(id).then(event => {
 			logger.info('[routes - /event/:id]\n', event);
-			res.render('event', { user: req.session.user, data: event.data });
+			res.render('event', { user: req.session.user, data: event.data, registrationStatus });
 		}).catch(err => {
 			logger.error('[routes - /event/:id]\n', err);
 			res.redirect('/events');
@@ -157,7 +157,7 @@ const routes = () => {
 		const { id } = req.params;
 		apiHelper.getWorkshopByUUID(id).then(workshop => {
 			logger.info('[routes - /workshop/:id]\n', workshop);
-			res.render('workshop', { user: req.session.user, data: workshop.data });
+			res.render('workshop', { user: req.session.user, data: workshop.data, registrationStatus });
 		}).catch(err => {
 			logger.error('[routes - /workshop/:id]\n', err);
 			res.redirect('/workshops');
