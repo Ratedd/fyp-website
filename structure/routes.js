@@ -116,7 +116,7 @@ const routes = () => {
 
 			const eventThumbDirExists = fs.existsSync(eventThumbDir);
 			if (!eventThumbDirExists) {
-				fs.mkdirSync(uploadDir, mkErr => {
+				fs.mkdirSync(eventThumbDir, { recursive: true }, mkErr => {
 					if (mkErr) {
 						addeventStatus = 1;
 						logger.error('[routes - /addevent: mkDir()]\n', mkErr);
@@ -311,16 +311,16 @@ const routes = () => {
 				logger.info('[routes - /addworkshop]\n', workshop);
 				uploader(path, newPath).then(() => {
 					addworkshopStatus = 1;
-					res.redirect('/admin');
+					return res.redirect(`/workshop/${uuid}`);
 				}).catch(uploadErr => {
 					addworkshopStatus = 3;
 					logger.error('[routes - /addworkshop]\n', uploadErr);
-					return res.redirect('/admin');
+					return res.redirect(`/workshop/${uuid}`);
 				});
 			}).catch(workshopErr => {
 				addworkshopStatus = 4;
 				logger.error('[routes - /addworkshop]\n', workshopErr);
-				return res.redirect('/admin');
+				return res.redirect(`/workshop/${uuid}`);
 			});
 		});
 	});
