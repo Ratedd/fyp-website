@@ -282,7 +282,7 @@ const routes = () => {
 
 			const { path, name } = files.file;
 			if (!path || !name) {
-				return res.redirect('/admin');
+				return res.redirect(`/workshop/${uuid}`);
 			}
 			const classification = workshopOrEvent === 1 ? 'workshops' : 'events';
 			const uploadPath = Path.join(process.cwd(), '/uploads/', 'registration/', `${classification}/`, `${uuid}`);
