@@ -1,5 +1,4 @@
 const bodyParser = require('body-parser');
-const server = require('./server.js');
 const session = require('express-session');
 const DynamoDBStore = require('connect-dynamodb')(session);
 const apiHelper = require('./apiHelper.js');
@@ -10,6 +9,7 @@ const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
 const fs = require('fs');
+const parse = require('../util/csv-parser.js');
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -18,7 +18,6 @@ let registrationStatus = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
-	const io = server.getSocketIO();
 
 	externalRoutes.use(session({
 		secret: 'alumni',
@@ -44,6 +43,10 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/uploads/workshopThumbnails/*', (req, res) => {
+		res.sendFile(req.originalUrl, { root: './' });
+	});
+
+	externalRoutes.get('/uploads/eventThumbnails/*', (req, res) => {
 		res.sendFile(req.originalUrl, { root: './' });
 	});
 
@@ -289,39 +292,16 @@ const routes = () => {
 			const newPath = Path.join(process.cwd(), '/uploads/', 'registration/', `${classification}/`, `${uuid}/`, `${name}`);
 			const dbPath = `../uploads/workshopThumbnails/${name}`;
 
-			const data = {
-				workshopName: fields.workshopName,
-				description: fields.workshopDesc,
-				workshopThumbnail: dbPath,
-				workshopDate: fields.workshopDate
-			};
-
 			const uploadDirExists = fs.existsSync(uploadPath);
 			if (!uploadDirExists) {
 				fs.mkdirSync(uploadPath, { recursive: true }, mkErr => {
 					if (mkErr) {
-						addworkshopStatus = 3;
+						registrationStatus = 3;
 						logger.error('[routes - /upload_file: mkDir()]\n', mkErr);
 						return res.redirect(`/workshop/${uuid}`);
 					}
 				});
 			}
-
-			apiHelper.addWorkshop(data).then(workshop => {
-				logger.info('[routes - /addworkshop]\n', workshop);
-				uploader(path, newPath).then(() => {
-					addworkshopStatus = 1;
-					return res.redirect(`/workshop/${uuid}`);
-				}).catch(uploadErr => {
-					addworkshopStatus = 3;
-					logger.error('[routes - /addworkshop]\n', uploadErr);
-					return res.redirect(`/workshop/${uuid}`);
-				});
-			}).catch(workshopErr => {
-				addworkshopStatus = 4;
-				logger.error('[routes - /addworkshop]\n', workshopErr);
-				return res.redirect(`/workshop/${uuid}`);
-			});
 		});
 	});
 
