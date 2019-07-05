@@ -9,7 +9,7 @@ const Path = require('path');
 const _ = require('lodash');
 const querystring = require('querystring');
 const fs = require('fs');
-const parse = require('../util/csv-parser.js');
+const csvp = require('../util/csv-parser.js');
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -276,21 +276,20 @@ const routes = () => {
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
 			const { uuid, workshopOrEvent } = fields;
+			const classification = workshopOrEvent === 1 ? 'workshops' : 'events';
 
 			if (err) {
 				registrationStatus = 2;
 				logger.error('[routes - /upload_file | Formidable]', err);
-				return res.redirect(`/workshop/${uuid}`);
+				return res.redirect(`/${classification}/${uuid}`);
 			}
 
 			const { path, name } = files.file;
 			if (!path || !name) {
-				return res.redirect(`/workshop/${uuid}`);
+				return res.redirect(`/${classification}/${uuid}`);
 			}
-			const classification = workshopOrEvent === 1 ? 'workshops' : 'events';
 			const uploadPath = Path.join(process.cwd(), '/uploads/', 'registration/', `${classification}/`, `${uuid}`);
 			const newPath = Path.join(process.cwd(), '/uploads/', 'registration/', `${classification}/`, `${uuid}/`, `${name}`);
-			const dbPath = `../uploads/workshopThumbnails/${name}`;
 
 			const uploadDirExists = fs.existsSync(uploadPath);
 			if (!uploadDirExists) {
@@ -298,10 +297,24 @@ const routes = () => {
 					if (mkErr) {
 						registrationStatus = 3;
 						logger.error('[routes - /upload_file: mkDir()]\n', mkErr);
-						return res.redirect(`/workshop/${uuid}`);
+						return res.redirect(`/${classification}/${uuid}`);
 					}
 				});
 			}
+
+			uploader(path, newPath).then(() => {
+				csvp(newPath).then(csvData => {
+					registrationStatus = 4;
+					return res.redirect(`/${classification}/${uuid}`);
+				}).catch(err => {
+					logger.error('[routes - /upload_file]\n', err);
+					return res.redirect(`/${classification}/${uuid}`);
+				});
+			}).catch(uploadErr => {
+				registrationStatus = 3;
+				logger.error('[routes - /addworkshop]\n', uploadErr);
+				return res.redirect(`/${classification}/${uuid}`);
+			});
 		});
 	});
 
