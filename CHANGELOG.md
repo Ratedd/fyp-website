@@ -1,0 +1,38 @@
+# 1.0.0 (2019-07-05)
+
+## Bug Fixes
+
+* changed eslint packages to dev ([fac401d](https://github.com/Ratedd/fyp-website/commit/fac401d))
+* no comment ([80596a5](https://github.com/Ratedd/fyp-website/commit/80596a5))
+* recursive folder ([aeec288](https://github.com/Ratedd/fyp-website/commit/aeec288))
+* status ([53ada43](https://github.com/Ratedd/fyp-website/commit/53ada43))
+* uploader for /upload route ([ad2f3ac](https://github.com/Ratedd/fyp-website/commit/ad2f3ac))
+* workshop not displaying ([2b63c73](https://github.com/Ratedd/fyp-website/commit/2b63c73))
+* workshop properties ([f1b740a](https://github.com/Ratedd/fyp-website/commit/f1b740a))
+
+## Features
+
+* /addevent ([c93f7c2](https://github.com/Ratedd/fyp-website/commit/c93f7c2))
+* /event/:id ([91d21d3](https://github.com/Ratedd/fyp-website/commit/91d21d3))
+* added dashboard page ([00a787d](https://github.com/Ratedd/fyp-website/commit/00a787d))
+* announcements ([e754fda](https://github.com/Ratedd/fyp-website/commit/e754fda))
+* completed /addworkshop ([2e09966](https://github.com/Ratedd/fyp-website/commit/2e09966))
+* completed workshop addition ([7700e94](https://github.com/Ratedd/fyp-website/commit/7700e94))
+* continue on addworkshop ([4625397](https://github.com/Ratedd/fyp-website/commit/4625397))
+* eslint packages ([cc9375b](https://github.com/Ratedd/fyp-website/commit/cc9375b))
+* events rendering ([aa5d49b](https://github.com/Ratedd/fyp-website/commit/aa5d49b))
+* file upload ([e620333](https://github.com/Ratedd/fyp-website/commit/e620333))
+* file upload error handling ([bdd8554](https://github.com/Ratedd/fyp-website/commit/bdd8554))
+* form for addition of workshop ([8d62c40](https://github.com/Ratedd/fyp-website/commit/8d62c40))
+* logout button for remaining pages ([18a876d](https://github.com/Ratedd/fyp-website/commit/18a876d))
+* no comment ([cbf3de5](https://github.com/Ratedd/fyp-website/commit/cbf3de5))
+* removed useless async ([d5f855d](https://github.com/Ratedd/fyp-website/commit/d5f855d))
+* responsive table & getting individual data ([fc1082e](https://github.com/Ratedd/fyp-website/commit/fc1082e))
+* rewrite on fs ([3adb71f](https://github.com/Ratedd/fyp-website/commit/3adb71f))
+* start on csv parsing ([ffd421f](https://github.com/Ratedd/fyp-website/commit/ffd421f))
+* start on fixing upload ([5d7a18f](https://github.com/Ratedd/fyp-website/commit/5d7a18f))
+* start on parsing workshop thumbnails ([dafd812](https://github.com/Ratedd/fyp-website/commit/dafd812))
+* start on workshop & events ([d6b1c45](https://github.com/Ratedd/fyp-website/commit/d6b1c45))
+* statuses for admin panel ([2a828b0](https://github.com/Ratedd/fyp-website/commit/2a828b0))
+* updated events ([9fb9b4a](https://github.com/Ratedd/fyp-website/commit/9fb9b4a))
+* workshop - continued ([2963cbe](https://github.com/Ratedd/fyp-website/commit/2963cbe))
