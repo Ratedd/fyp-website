@@ -9,7 +9,7 @@ module.exports = filePath => new Promise((resolve, reject) => {
 			csvData.push(csvRow);
 		})
 		.on('end', () => {
-			resolve(csvData);
+			resolve(csvData[0]);
 		})
 		.on('error', err => {
 			reject(err);

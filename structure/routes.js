@@ -276,7 +276,7 @@ const routes = () => {
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
 			const { uuid, workshopOrEvent } = fields;
-			const classification = workshopOrEvent === 1 ? 'workshops' : 'events';
+			const classification = parseInt(workshopOrEvent, 10) === 1 ? 'workshop' : 'event';
 
 			if (err) {
 				registrationStatus = 2;
@@ -304,8 +304,19 @@ const routes = () => {
 
 			uploader(path, newPath).then(() => {
 				csvp(newPath).then(csvData => {
-					registrationStatus = 4;
-					return res.redirect(`/${classification}/${uuid}`);
+					apiHelper.addWorkshopAttendance(uuid, csvData).then(done => {
+						if (done.code && done.code === 'BadRequest') {
+							logger.info('[routes - /upload_file]\n', done);
+							registrationStatus = 5;
+							return res.redirect(`/${classification}/${uuid}`);
+						}
+						logger.info('[routes - /upload_file]\n', done);
+						registrationStatus = 1;
+						return res.redirect(`/${classification}/${uuid}`);
+					}).catch(err => {
+						logger.error('[routes - /upload_file]\n', err);
+						return res.redirect(`/${classification}/${uuid}`);
+					});
 				}).catch(err => {
 					logger.error('[routes - /upload_file]\n', err);
 					return res.redirect(`/${classification}/${uuid}`);

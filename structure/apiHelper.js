@@ -58,6 +58,16 @@ const apiHelper = {
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
+	}),
+	addWorkshopAttendance: (uuid, csvData) => new Promise((resolve, reject) => {
+		const details = {
+			uuid,
+			details: csvData
+		};
+		fetch(`${process.env.API_BASE_LINK}/api/addworkshopattendance`, { method: 'POST', body: JSON.stringify(details) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
 	})
 };
 

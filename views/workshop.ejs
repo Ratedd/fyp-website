@@ -94,6 +94,9 @@
 											<label class="form-control"><%=data.workshopDate%></label>
 										</div>
 										<div class="form-group">
+											<input class="form-control" type="text" name="workshopOrEvent" id="workshopOrEvent" value="1" hidden> 
+										</div>
+										<div class="form-group">
 											<label>Upload CSV</label><br>
 											<input class="form-control" type="file" name="file">
 										</div>
@@ -132,6 +135,13 @@
 													Internal Server Error. If this persists, please contact the web administrator.
 												</div>
 										<%
+													break;
+												case 5:
+										%>
+												<br><br>
+												<div class="alert alert-primary" role="alert">
+													You have already registered
+												</div>
 										<%
 													break;
 												default:
