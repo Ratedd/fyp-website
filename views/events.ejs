@@ -37,7 +37,7 @@
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/upcoming">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Upcoming Events</a>
 							</div>
 						</li>
 						<%
@@ -84,14 +84,14 @@
 									</thead>
 									<tbody>
 										<%
-											if (events) {
+											if (events && events.length) {
 												events.forEach(function(e) {
 										%>
 													<tr>
-													<th scope="row"><%= e.workshopName %></th>
-													<td><img class="img-fluid img-thumbnail" src="<%= e.workshopThumbnail %>"></img></td>
+													<th scope="row"><%= e.eventName %></th>
+													<td><img class="img-fluid img-thumbnail" src="<%= e.eventThumbnail %>"></img></td>
 													<td><%= e.description %></td>
-													<td><%= e.workshopDate %></td>
+													<td><%= e.eventDate %></td>
 													<td><a href="/event/<%= e.uuid %>">Registration</a></td>
 													</tr>
 										<%

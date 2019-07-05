@@ -72,12 +72,24 @@ const routes = () => {
 		// if (!req.session.user.isAdmin) {
 		// 	return res.redirect('/');
 		// }
-		return res.render('admin', { user: req.session.user, announcementStatus, addworkshopStatus, addeventStatus });
+		apiHelper.getWorkshops().then(workshopData => {
+			logger.info('[routes - /admin]\n', workshopData);
+			apiHelper.getEvents().then(eventData => {
+				logger.info('[routes - /admin]\n', eventData);
+				return res.render('admin', { user: req.session.user, announcementStatus, addworkshopStatus, addeventStatus, workshops: workshopData, events: eventData });
+			}).catch(err => {
+				logger.error('[routes - /admin]\n', err);
+				return res.redirect('/');
+			});
+		}).catch(err => {
+			logger.error('[routes - /admin]\n', err);
+			return res.redirect('/');
+		});
 	});
 
 	externalRoutes.get('/events', (req, res) => {
 		apiHelper.getEvents().then(data => {
-			logger.info('eventData', data);
+			logger.info('[routes - /events]\n', data);
 			res.render('events', { user: req.session.user, events: data });
 		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
@@ -169,7 +181,7 @@ const routes = () => {
 
 	externalRoutes.get('/workshops', (req, res) => {
 		apiHelper.getWorkshops().then(data => {
-			logger.info('workshopData', data);
+			logger.info('[routes - /workshops]\n', data);
 			res.render('workshops', { user: req.session.user, workshops: data });
 		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
