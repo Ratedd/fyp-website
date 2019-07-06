@@ -10,6 +10,7 @@ const _ = require('lodash');
 const querystring = require('querystring');
 const fs = require('fs');
 const csvp = require('../util/csv-parser.js');
+const express = require('express');
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -33,14 +34,6 @@ const routes = () => {
 	}));
 
 	externalRoutes.use(bodyParser.urlencoded({ extended: true }));
-
-	externalRoutes.get('/js/*', (req, res) => {
-		res.sendFile(req.originalUrl, { root: './' });
-	});
-
-	externalRoutes.get('/css/*', (req, res) => {
-		res.sendFile(req.originalUrl, { root: './' });
-	});
 
 	externalRoutes.get('/uploads/workshopThumbnails/*', (req, res) => {
 		res.sendFile(req.originalUrl, { root: './' });
@@ -343,15 +336,17 @@ const routes = () => {
 
 	externalRoutes.get('/attendance/:workshopOrEvent/:id', (req, res) => {
 		const { workshopOrEvent, id } = req.params;
+		let apiData;
 		if (workshopOrEvent === 'workshop') {
 			apiHelper.getWorkshopAttendanceByUUID(id).then(data => {
+				apiData = data;
 				logger.info('[routes - /attendance/:workshopOrEvent/:id]\n', data);
-				return res.render('attendance', { data });
 			}).catch(err => {
 				logger.error('[routes - /attendance/:workshopOrEvent/:id]\n', err);
 				return res.redirect('/admin');
 			});
 		}
+		return res.render('attendance', { user: req.session.user, apiData });
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {

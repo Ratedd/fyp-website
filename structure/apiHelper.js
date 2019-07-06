@@ -70,7 +70,10 @@ const apiHelper = {
 			.catch(err => reject(err));
 	}),
 	getWorkshopAttendanceByUUID: uuid => new Promise((resolve, reject) => {
-		fetch(`${process.env.API_BASE_LINK}/api/getworkshopattendance`, { method: 'GET', body: JSON.stringify(uuid) })
+		const toSend = {
+			uuid
+		};
+		fetch(`${process.env.API_BASE_LINK}/api/getworkshopattendance`, { method: 'POST', body: JSON.stringify(toSend) })
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));

@@ -141,13 +141,15 @@
 										<div class="form-group">
 											<label>Workshop Name</label> 
 											<input class="form-control" id="workshopDate" name="workshopDate" required type="date">
-							  			</div
+							  			</div>
 										<div class="form-group">
 											<label>Workshop Thumbnail (If any)</label> 
             								<input class="form-control" type="file" name="file">
 							  			</div>
-							  			<div class="form-check small"></div>
-										<button class="btn btn-info btn-lg" type="submit">Add Workshop</button>
+										<div class="form-check small"></div>
+										<div class="form-group">
+											<button class="btn btn-info btn-lg" type="submit">Add Workshop</button>
+							  			</div>
 										<%
 											switch (addworkshopStatus) {
 												case 1:
