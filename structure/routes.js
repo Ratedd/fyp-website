@@ -341,6 +341,19 @@ const routes = () => {
 		});
 	});
 
+	externalRoutes.get('/attendance/:workshopOrEvent/:id', (req, res) => {
+		const { workshopOrEvent, id } = req.params;
+		if (workshopOrEvent === 'workshop') {
+			apiHelper.getWorkshopAttendanceByUUID(id).then(data => {
+				logger.info('[routes - /attendance/:workshopOrEvent/:id]\n', data);
+				return res.render('attendance', { data });
+			}).catch(err => {
+				logger.error('[routes - /attendance/:workshopOrEvent/:id]\n', err);
+				return res.redirect('/admin');
+			});
+		}
+	});
+
 	externalRoutes.post('/login_verification', (req, res) => {
 		if (!req.session.user) {
 			req.session.user = {
