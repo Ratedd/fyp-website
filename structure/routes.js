@@ -336,17 +336,15 @@ const routes = () => {
 
 	externalRoutes.get('/attendance/:workshopOrEvent/:id', (req, res) => {
 		const { workshopOrEvent, id } = req.params;
-		let apiData;
 		if (workshopOrEvent === 'workshop') {
 			apiHelper.getWorkshopAttendanceByUUID(id).then(data => {
-				apiData = data;
 				logger.info('[routes - /attendance/:workshopOrEvent/:id]\n', data);
+				return res.render('attendance', { user: req.session.user, data });
 			}).catch(err => {
 				logger.error('[routes - /attendance/:workshopOrEvent/:id]\n', err);
 				return res.redirect('/admin');
 			});
 		}
-		return res.render('attendance', { user: req.session.user, apiData });
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
