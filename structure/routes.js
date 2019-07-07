@@ -10,7 +10,6 @@ const _ = require('lodash');
 const querystring = require('querystring');
 const fs = require('fs');
 const csvp = require('../util/csv-parser.js');
-const express = require('express');
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
