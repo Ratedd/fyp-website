@@ -118,7 +118,8 @@ const routes = () => {
 				eventName: fields.eventName,
 				description: fields.eventDesc,
 				eventThumbnail: dbPath,
-				eventDate: fields.eventDate
+				eventDate: fields.eventDate,
+				addedByAdmin: req.session.user.uuid
 			};
 
 			const eventThumbDirExists = fs.existsSync(eventThumbDir);
@@ -131,7 +132,7 @@ const routes = () => {
 					}
 				});
 			}
-			apiHelper.addWorkshop(data).then(event => {
+			apiHelper.addEvent(data).then(event => {
 				logger.info('[routes - /addevent]\n', event);
 				uploader(path, newPath).then(() => {
 					addeventStatus = 4;
@@ -210,7 +211,8 @@ const routes = () => {
 				workshopName: fields.workshopName,
 				description: fields.workshopDesc,
 				workshopThumbnail: dbPath,
-				workshopDate: fields.workshopDate
+				workshopDate: fields.workshopDate,
+				addedByAdmin: req.session.user.uuid
 			};
 
 			const workshopThumbDirExists = fs.existsSync(workshopThumbDir);

@@ -41,6 +41,31 @@ const apiHelper = {
 			.then(json => resolve(json))
 			.catch(err => reject(err));
 	}),
+	addEvent: data => new Promise((resolve, reject) => {
+		fetch(`${process.env.API_BASE_LINK}/api/addevent`, { method: 'POST', body: JSON.stringify(data) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
+	addEventAttendance: (uuid, csvData) => new Promise((resolve, reject) => {
+		const details = {
+			uuid,
+			details: csvData
+		};
+		fetch(`${process.env.API_BASE_LINK}/api/addeventattendance`, { method: 'POST', body: JSON.stringify(details) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
+	getEventAttendanceByUUID: uuid => new Promise((resolve, reject) => {
+		const toSend = {
+			uuid
+		};
+		fetch(`${process.env.API_BASE_LINK}/api/getworkshopattendance`, { method: 'POST', body: JSON.stringify(toSend) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
 	getWorkshops: () => new Promise((resolve, reject) => {
 		fetch(`${process.env.API_BASE_LINK}/api/workshops`)
 			.then(res => res.json())
