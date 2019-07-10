@@ -11,6 +11,7 @@ const querystring = require('querystring');
 const fs = require('fs');
 const csvp = require('../util/csv-parser.js');
 let failed = 0;
+let rFailed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
 let addeventStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -57,16 +58,38 @@ const routes = () => {
 		res.redirect('/admin');
 	});
 
+	externalRoutes.get('/register', (req, res) => {
+		if (!req.session.user) {
+			return res.render('register', { user: req.session.user, registrationFailed: rFailed });
+		}
+
+		res.redirect('/');
+	});
+
+	externalRoutes.post('/register_account', (req, res) => {
+		if (req.session.user) {
+			return res.redirect('/');
+		}
+		const { username, password, name } = req.body;
+		apiHelper.createAccount(username, password, name).then(data => {
+			logger.info('[routes - /register_account]\n', data);
+			return res.redirect('/login');
+		}).catch(err => {
+			logger.error('[routes - /register_account]\n', err);
+			return res.redirect('/register');
+		});
+	});
+
 	externalRoutes.get('/admin', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
-		apiHelper.getWorkshops().then(workshopData => {
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
+		apiHelper.getWorkshopAddedByUserID(req.session.user.uuid).then(workshopData => {
 			logger.info('[routes - /admin]\n', workshopData);
-			apiHelper.getEvents().then(eventData => {
+			apiHelper.getEventAddedByUserID(req.session.user.uuid).then(eventData => {
 				logger.info('[routes - /admin]\n', eventData);
 				return res.render('admin', { user: req.session.user, announcementStatus, addworkshopStatus, addeventStatus, workshops: workshopData, events: eventData });
 			}).catch(err => {
@@ -90,13 +113,13 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/addevent', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
 
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
@@ -183,13 +206,13 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/addworkshop', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
 
-		// if (!req.session.user.isAdmin) {
-		// 	return res.redirect('/');
-		// }
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
@@ -275,9 +298,9 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/upload_file', (req, res) => {
-		// if (!req.session.user) {
-		// 	return res.redirect('/login');
-		// }
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
@@ -349,28 +372,20 @@ const routes = () => {
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
-		if (!req.session.user) {
-			req.session.user = {
-				uuid: '123',
-				username: 'test',
-				isAdmin: false
-			};
+		const { username, password } = req.body;
+		if (!username && !password) {
+			failed = 3;
+			return res.redirect('/login');
 		}
-		res.redirect('/');
-		// const { username, password } = req.body;
-		// if (!username && !password) {
-		// 	failed = 3;
-		// 	return res.redirect('/login');
-		// }
-		// apiHelper.verifyAccount(username, password).then(data => {
-		// 	if (data) {
-		// 		req.session.user = data;
-		// 		res.redirect('/');
-		// 	} else {
-		// 		failed = 1;
-		// 		return res.redirect('/login');
-		// 	}
-		// });
+		apiHelper.verifyAccount(username, password).then(data => {
+			if (data) {
+				req.session.user = data;
+				res.redirect('/');
+			} else {
+				failed = 1;
+				return res.redirect('/login');
+			}
+		});
 	});
 
 	externalRoutes.post('/logout', (req, res) => {

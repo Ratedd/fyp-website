@@ -1,6 +1,17 @@
 const fetch = require('node-fetch');
 
 const apiHelper = {
+	createAccount: (inputUsername, inputPassword, inputName) => new Promise((resolve, reject) => {
+		const data = {
+			username: inputUsername,
+			password: inputPassword,
+			name: inputName
+		};
+		fetch(`${process.env.API_BASE_LINK}/api/addaccount`, { method: 'POST', body: JSON.stringify(data) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
 	verifyAccount: (inputUsername, inputPassword) => new Promise((resolve, reject) => {
 		const data = {
 			username: inputUsername,
@@ -9,9 +20,7 @@ const apiHelper = {
 		fetch(`${process.env.API_BASE_LINK}/api/verifyaccount`, { method: 'POST', body: JSON.stringify(data) })
 			.then(res => res.json())
 			.then(json => resolve(json))
-			.catch(err => {
-				reject(err);
-			});
+			.catch(err => reject(err));
 	}),
 	getSubscribers: () => new Promise((resolve, reject) => {
 		fetch(`${process.env.API_BASE_LINK}/api/getsubscribers`)
@@ -99,6 +108,12 @@ const apiHelper = {
 			uuid
 		};
 		fetch(`${process.env.API_BASE_LINK}/api/getworkshopattendance`, { method: 'POST', body: JSON.stringify(toSend) })
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
+	getWorkshopAddedByUserID: userId => new Promise((resolve, reject) => {
+		fetch(`${process.env.API_BASE_LINK}/api/workshops/${userId}`)
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
