@@ -387,7 +387,7 @@ const routes = () => {
 		});
 	});
 
-	externalRoutes.post('/logout', (req, res) => {
+	externalRoutes.get('/logout', (req, res) => {
 		if (req.session.user) {
 			req.session.destroy(err => {
 				if (err) {
