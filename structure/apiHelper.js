@@ -75,6 +75,12 @@ const apiHelper = {
 			.then(json => resolve(json))
 			.catch(err => reject(err));
 	}),
+	getEventAddedByUserID: userId => new Promise((resolve, reject) => {
+		fetch(`${process.env.API_BASE_LINK}/api/events/${userId}`)
+			.then(res => res.json())
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	}),
 	getWorkshops: () => new Promise((resolve, reject) => {
 		fetch(`${process.env.API_BASE_LINK}/api/workshops`)
 			.then(res => res.json())

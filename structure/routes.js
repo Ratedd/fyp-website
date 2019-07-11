@@ -11,7 +11,6 @@ const querystring = require('querystring');
 const fs = require('fs');
 const csvp = require('../util/csv-parser.js');
 let failed = 0;
-let rFailed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
 let addeventStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -60,7 +59,7 @@ const routes = () => {
 
 	externalRoutes.get('/register', (req, res) => {
 		if (!req.session.user) {
-			return res.render('register', { user: req.session.user, registrationFailed: rFailed });
+			return res.render('register', { user: req.session.user });
 		}
 
 		res.redirect('/');
@@ -378,7 +377,7 @@ const routes = () => {
 			return res.redirect('/login');
 		}
 		apiHelper.verifyAccount(username, password).then(data => {
-			if (data) {
+			if (data && data.uuid) {
 				req.session.user = data;
 				res.redirect('/');
 			} else {
