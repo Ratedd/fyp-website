@@ -7,7 +7,7 @@ const apiHelper = {
 			password: inputPassword,
 			name: inputName
 		};
-		fetch(`${process.env.API_BASE_LINK}/api/addaccount`, { method: 'POST', body: JSON.stringify(data) })
+		fetch(`${process.env.API_BASE_LINK}/api/createaccount`, { method: 'POST', body: JSON.stringify(data) })
 			.then(res => res.json())
 			.then(json => resolve(json))
 			.catch(err => reject(err));
