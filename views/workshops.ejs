@@ -17,30 +17,32 @@
 						<li class="nav-item">
 							<a class="nav-link" href="/">Home</a>
 						</li>
+						<%
+							if (!user) {
+						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
-							<span class="sr-only">(current)</span>
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item active" href="/login">Login  <span class="sr-only">(current)</span></a>
+								<a class="dropdown-item active" href="/login">Login</a>
 								<a class="dropdown-item" href="/register">Register</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item active" href="/workshops">Workshops</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
-						</li>
-						<%
-							if (user && user.isAdmin) {
-						%>
-						<li class="nav-item">
-							<a class="nav-link" href="/admin">Administrative Panel</a>
 						</li>
 						<%
 							}
@@ -89,7 +91,7 @@
 											<th scope="col">Preview</th>
 											<th scope="col">Description</th>
 											<th scope="col">Workshop Date</th>
-											<th scope="col">Registration</th>
+											<th scope="col">View Details</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -102,7 +104,7 @@
 													<td><img class="img-fluid img-thumbnail" src="<%= ws.workshopThumbnail %>"></img></td>
 													<td><%= ws.description %></td>
 													<td><%= ws.workshopDate %></td>
-													<td><a href="/workshop/<%= ws.uuid %>">Registration</a></td>
+													<td><a href="/workshop/<%= ws.uuid %>">View</a></td>
 													</tr>
 										<%
 												})

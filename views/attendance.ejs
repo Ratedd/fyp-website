@@ -37,7 +37,7 @@
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
 						<%
@@ -76,16 +76,31 @@
 						  		<div class="card-header bg-dark">
 									<h3 class="mb-0 text-white">Attendance</h3>
 						  		</div>
+								<% 
+									if (data.attendees) {
+								%>
 								<div class="card-body">
 									<div id="spreadsheet"></div>
 									<button id="download">Download Attendance List</button>
-						  		</div>
+								</div>
+								<%
+									} else {
+								%>
+								<div class="card-body">
+									<h2>No registered users yet</h2>
+								</div>
+								<%
+									}
+								%>
 							</div>
 					  	</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<%
+			if (data.attendees) {
+		%>
 		<script type="text/javascript">
 			const option = {
 				data: <%-JSON.stringify(data.attendees)%>,
@@ -104,5 +119,8 @@
 				spread.download();
 			}
 		</script>
+		<%
+			}
+		%>
 	</body>
 </html>

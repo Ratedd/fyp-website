@@ -17,25 +17,36 @@
 						<li class="nav-item">
 							<a class="nav-link" href="/">Home</a>
 						</li>
+						<%
+							if (!user) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
-							<span class="sr-only">(current)</span>
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item active" href="/login">Login  <span class="sr-only">(current)</span></a>
-								<a class="dropdown-item" href="/register">Register</a>
+								<a class="dropdown-item" href="/login">Login</a>
+								<a class="dropdown-item active" href="/register">Register</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<%
 							if (user && user.isAdmin) {
 						%>
@@ -75,16 +86,16 @@
 						  		<div class="card-body">
 									<form class="form" action="/register_account" method="POST">
 										<div class="form-group">
+											<label>Name</label> 
+											<input class="form-control" id="name" name="name" required type="text">
+							  			</div>
+										<div class="form-group">
 											<label>Username</label> 
 											<input class="form-control" id="username" name="username" required type="text">
 							  			</div>
 							  			<div class="form-group">
 											<label>Password</label> 
 											<input class="form-control" id="password" name="password" required type="password">
-							  			</div>
-										<div class="form-group">
-											<label>Name</label> 
-											<input class="form-control" id="name" name="name" required type="text">
 							  			</div>
 							  			<div class="form-check small"></div>
 										<button class="btn btn-info btn-lg" type="submit">Register</button>

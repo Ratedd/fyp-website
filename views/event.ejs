@@ -37,7 +37,7 @@
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
 						<%
@@ -89,6 +89,7 @@
 										<div class="form-group">
 											<label>Event Name</label><br>
 											<label><%=data.eventName%></label> 
+											<input class="form-control" type="text" name="WEname" id="WEname" value=<%=data.eventName%> hidden> 
 										</div>
 										<div class="form-group">
 											<label>Event Description</label><br>
@@ -135,6 +136,14 @@
 												<br><br>
 												<div class="alert alert-danger" role="alert">
 													Internal Server Error. If this persists, please contact the web administrator.
+												</div>
+										<%
+													break;
+												case 5:
+										%>
+												<br><br>
+												<div class="alert alert-primary" role="alert">
+													Already registered this bunch of attendees
 												</div>
 										<%
 													break;

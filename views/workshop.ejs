@@ -13,33 +13,39 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav mr-auto">
-						<li class="nav-item active">
-							<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+						<li class="nav-item">
+							<a class="nav-link" href="/">Home</a>
 						</li>
-						<% 
-							if (!user) { 
+						<%
+							if (!user) {
 						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item" href="/login">Login</a>
+								<a class="dropdown-item active" href="/login">Login</a>
 								<a class="dropdown-item" href="/register">Register</a>
 							</div>
 						</li>
-						<% 
+						<%
 							}
 						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item active" href="/workshops">Workshops</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<%
 							if (user && user.isAdmin) {
 						%>
@@ -89,6 +95,7 @@
 										<div class="form-group">
 											<label>Workshop Name</label><br>
 											<label><%=data.workshopName%></label> 
+											<input class="form-control" type="text" name="WEname" id="WEname" value=<%=data.workshopName%> hidden> 
 										</div>
 										<div class="form-group">
 											<label>Workshop Description</label><br>
@@ -145,7 +152,7 @@
 										%>
 												<br><br>
 												<div class="alert alert-primary" role="alert">
-													You have already registered
+													Already registered this bunch of attendees
 												</div>
 										<%
 													break;

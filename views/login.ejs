@@ -17,25 +17,36 @@
 						<li class="nav-item">
 							<a class="nav-link" href="/">Home</a>
 						</li>
+						<%
+							if (!user) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
-							<span class="sr-only">(current)</span>
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item active" href="/login">Login  <span class="sr-only">(current)</span></a>
+								<a class="dropdown-item active" href="/login">Login</a>
 								<a class="dropdown-item" href="/register">Register</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<%
 							if (user && user.isAdmin) {
 						%>
@@ -46,7 +57,7 @@
 							}
 						%>
 						<%
-							if (user) {
+							if (user && user.uuid) {
 						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

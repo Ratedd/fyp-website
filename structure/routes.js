@@ -43,7 +43,14 @@ const routes = () => {
 	});
 
 	externalRoutes.get('/', (req, res) => {
-		res.render('index', { user: req.session.user });
+		if (!req.session.user) {
+			return res.render('login', { user: req.session.user, loginFailed: failed });
+		}
+
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/workshops');
+		}
+		res.redirect('/admin');
 	});
 
 	externalRoutes.get('/login', (req, res) => {
@@ -52,7 +59,7 @@ const routes = () => {
 		}
 
 		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
+			return res.redirect('/workshops');
 		}
 		res.redirect('/admin');
 	});
@@ -62,7 +69,10 @@ const routes = () => {
 			return res.render('register', { user: req.session.user });
 		}
 
-		res.redirect('/');
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/workshops');
+		}
+		res.redirect('/admin');
 	});
 
 	externalRoutes.post('/register_account', (req, res) => {
@@ -84,7 +94,7 @@ const routes = () => {
 			return res.redirect('/login');
 		}
 		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
+			return res.redirect('/workshops');
 		}
 		apiHelper.getWorkshopAddedByUserID(req.session.user.uuid).then(workshopData => {
 			logger.info('[routes - /admin]\n', workshopData);
@@ -93,11 +103,11 @@ const routes = () => {
 				return res.render('admin', { user: req.session.user, announcementStatus, addworkshopStatus, addeventStatus, workshops: workshopData, events: eventData });
 			}).catch(err => {
 				logger.error('[routes - /admin]\n', err);
-				return res.redirect('/');
+				return res.redirect('/admin');
 			});
 		}).catch(err => {
 			logger.error('[routes - /admin]\n', err);
-			return res.redirect('/');
+			return res.redirect('/admin');
 		});
 	});
 
@@ -107,17 +117,17 @@ const routes = () => {
 			res.render('events', { user: req.session.user, events: data });
 		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
-			return res.redirect('/');
+			return res.redirect('/admin');
 		});
 	});
 
-	externalRoutes.get('/addevent', (req, res) => {
+	externalRoutes.post('/addevent', (req, res) => {
 		if (!req.session.user) {
 			return res.redirect('/login');
 		}
 
 		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
+			return res.redirect('/workshops');
 		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
@@ -200,7 +210,7 @@ const routes = () => {
 			res.render('workshops', { user: req.session.user, workshops: data });
 		}).catch(err => {
 			logger.error('[routes - /events]\n', err);
-			return res.redirect('/');
+			return res.redirect('/admin');
 		});
 	});
 
@@ -210,7 +220,7 @@ const routes = () => {
 		}
 
 		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
+			return res.redirect('/workshops');
 		}
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
@@ -270,7 +280,7 @@ const routes = () => {
 			return res.redirect('/login');
 		}
 		if (!req.session.user.isAdmin) {
-			return res.redirect('/');
+			return res.redirect('/workshops');
 		}
 		const { message } = req.body;
 		if (!message) {
@@ -303,7 +313,7 @@ const routes = () => {
 		const form = new formidable.IncomingForm();
 		form.maxFileSize = 200 * 1024 * 1024;
 		form.parse(req, (err, fields, files) => {
-			const { uuid, workshopOrEvent } = fields;
+			const { uuid, workshopOrEvent, WEname } = fields;
 			const classification = parseInt(workshopOrEvent, 10) === 1 ? 'workshop' : 'event';
 
 			if (err) {
@@ -332,7 +342,7 @@ const routes = () => {
 
 			uploader(path, newPath).then(() => {
 				csvp(newPath).then(csvData => {
-					apiHelper.addWorkshopAttendance(uuid, csvData).then(done => {
+					apiHelper.addAttendance(classification, uuid, csvData, WEname).then(done => {
 						if (done.code && done.code === 'BadRequest') {
 							logger.info('[routes - /upload_file]\n', done);
 							registrationStatus = 5;
@@ -351,7 +361,7 @@ const routes = () => {
 				});
 			}).catch(uploadErr => {
 				registrationStatus = 3;
-				logger.error('[routes - /addworkshop]\n', uploadErr);
+				logger.error(`[routes - /add${classification}]\n`, uploadErr);
 				return res.redirect(`/${classification}/${uuid}`);
 			});
 		});
@@ -368,6 +378,13 @@ const routes = () => {
 				return res.redirect('/admin');
 			});
 		}
+		apiHelper.getEventAttendanceByUUID(id).then(data => {
+			logger.info('[routes - /attendance/:workshopOrEvent/:id]\n', data);
+			return res.render('attendance', { user: req.session.user, data });
+		}).catch(err => {
+			logger.error('[routes - /attendance/:workshopOrEvent/:id]\n', err);
+			return res.redirect('/admin');
+		});
 	});
 
 	externalRoutes.post('/login_verification', (req, res) => {
@@ -379,11 +396,14 @@ const routes = () => {
 		apiHelper.verifyAccount(username, password).then(data => {
 			if (data && data.uuid) {
 				req.session.user = data;
-				res.redirect('/');
-			} else {
-				failed = 1;
-				return res.redirect('/login');
+				return res.redirect('/admin');
 			}
+			failed = 1;
+			return res.redirect('/login');
+		}).catch(err => {
+			logger.error('[routes - /login_verification]\n', err);
+			failed = 2;
+			return res.redirect('/login');
 		});
 	});
 
@@ -397,6 +417,17 @@ const routes = () => {
 			failed = 4;
 		}
 		return res.redirect('/login');
+	});
+
+	externalRoutes.get('/removeevent/:uuid', (req, res) => {
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
+
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/workshops');
+		}
+
 	});
 
 	return externalRoutes;

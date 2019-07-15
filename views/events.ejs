@@ -13,33 +13,39 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav mr-auto">
-						<li class="nav-item active">
-							<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+						<li class="nav-item">
+							<a class="nav-link" href="/">Home</a>
 						</li>
-						<% 
-							if (!user) { 
+						<%
+							if (!user) {
 						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item" href="/login">Login</a>
+								<a class="dropdown-item active" href="/login">Login</a>
 								<a class="dropdown-item" href="/register">Register</a>
 							</div>
 						</li>
-						<% 
+						<%
 							}
 						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item active" href="/events">Events</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<%
 							if (user && user.isAdmin) {
 						%>
@@ -74,7 +80,7 @@
 						<div class="col-md-6">
 							<div class="card card-outline-secondary">
 						  		<div class="card-header bg-dark">
-									<h3 class="mb-0 text-white">Login</h3>
+									<h3 class="mb-0 text-white">Events</h3>
 						  		</div>
 						  		<div class="card-body">
 								<table class="table-responsive">

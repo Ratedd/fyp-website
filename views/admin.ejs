@@ -21,9 +21,8 @@
 							if (!user) {
 						%>
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Account
-							<span class="sr-only">(current)</span>
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item active" href="/login">Login</a>
@@ -33,15 +32,21 @@
 						<%
 							}
 						%>
+						<%
+							if (user && user.uuid) {
+						%>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Events
+								Workshops & Events
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 								<a class="dropdown-item" href="/workshops">Workshops</a>
-								<a class="dropdown-item" href="/events">Upcoming Events</a>
+								<a class="dropdown-item" href="/events">Events</a>
 							</div>
 						</li>
+						<%
+							}
+						%>
 						<%
 							if (user && user.isAdmin) {
 						%>
@@ -144,7 +149,7 @@
 											<textarea class="form-control" id="workshopDesc" name="workshopDesc" placeholder="Input Description"></textarea>
 							  			</div>
 										<div class="form-group">
-											<label>Workshop Name</label> 
+											<label>Workshop Date</label> 
 											<input class="form-control" id="workshopDate" name="workshopDate" required type="date">
 							  			</div>
 										<div class="form-group">
@@ -208,6 +213,83 @@
 						<div class="col-md-6">
 							<div class="card card-outline-secondary">
 						  		<div class="card-header bg-dark">
+									<h3 class="mb-0 text-white">Add Event</h3>
+						  		</div>
+						  		<div class="card-body">
+									<form class="form" action="/addevent" enctype="multipart/form-data" method="POST">
+										<div class="form-group">
+											<label>Event Name</label> 
+											<input class="form-control" id="eventName" name="eventName" required type="text">
+							  			</div
+										<div class="form-group">
+											<label>Description</label> 
+											<textarea class="form-control" id="eventDesc" name="eventDesc" placeholder="Input Description"></textarea>
+							  			</div>
+										<div class="form-group">
+											<label>Event Date</label> 
+											<input class="form-control" id="eventDate" name="eventDate" required type="date">
+							  			</div>
+										<div class="form-group">
+											<label>Event Thumbnail (If any)</label> 
+            								<input class="form-control" type="file" name="file">
+							  			</div>
+										<div class="form-check small"></div>
+										<div class="form-group">
+											<button class="btn btn-info btn-lg" type="submit">Add Event</button>
+							  			</div>
+										<%
+											switch (addeventStatus) {
+												case 1:
+										%>
+												<br>
+												<div class="alert alert-danger" role="alert">
+													Failed to create upload folder
+												</div>
+										<%
+													break;
+												case 2:
+										%>
+												<br>
+												<div class="alert alert-danger" role="alert">
+													Error adding event to database
+												</div>
+										<%
+													break;
+												case 3:
+										%>
+												<br>
+												<div class="alert alert-danger" role="alert">
+													File System Error
+												</div>
+										<%
+													break;
+												case 4:
+										%>
+												<br>
+												<div class="alert alert-success" role="alert">
+													Successfully added event
+												</div>
+										<%
+													break;
+												default:
+													break;
+											}
+										%>
+									</form>
+						  		</div>
+							</div>
+					  	</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container py-3 text-center">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="row justify-content-center">
+						<div class="col-md-6">
+							<div class="card card-outline-secondary">
+						  		<div class="card-header bg-dark">
 									<h3 class="mb-0 text-white">Workshops</h3>
 						  		</div>
 						  		<div class="card-body">
@@ -218,7 +300,9 @@
 											<th scope="col">Preview</th>
 											<th scope="col">Description</th>
 											<th scope="col">Workshop Date</th>
-											<th scope="col"></th>
+											<th scope="col">Attendance</th>
+											<th scope="col">Register</th>
+											<th scope="col">Remove Workshop</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -232,6 +316,8 @@
 													<td><%= ws.description %></td>
 													<td><%= ws.workshopDate %></td>
 													<td><a href="/attendance/workshop/<%= ws.uuid %>">View Attendance</a></td>
+													<td><a href="/workshop/<%= ws.uuid %>">Register</a></td>
+													<td><a href="/removeworkshop/<%= ws.uuid %>">Remove Workshop</a></td>
 													</tr>
 										<%
 												})
@@ -253,7 +339,7 @@
 						<div class="col-md-6">
 							<div class="card card-outline-secondary">
 						  		<div class="card-header bg-dark">
-									<h3 class="mb-0 text-white">Login</h3>
+									<h3 class="mb-0 text-white">Events</h3>
 						  		</div>
 						  		<div class="card-body">
 								<table class="table-responsive">
@@ -263,7 +349,9 @@
 											<th scope="col">Preview</th>
 											<th scope="col">Description</th>
 											<th scope="col">Event Date</th>
-											<th scope="col"></th>
+											<th scope="col">Attendance</th>
+											<th scope="col">Register</th>
+											<th scope="col">Remove Event</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -273,10 +361,12 @@
 										%>
 													<tr>
 													<th scope="row"><%= e.eventName %></th>
-													<td><img class="img-fluid img-thumbnail" src="<%= e.workshopThumbnail %>"></img></td>
+													<td><img class="img-fluid img-thumbnail" src="<%= e.eventThumbnail %>"></img></td>
 													<td><%= e.description %></td>
 													<td><%= e.eventDate %></td>
 													<td><a href="/attendance/event/<%= e.uuid %>">View Attendance</a></td>
+													<td><a href="/event/<%= e.uuid %>">Register</a></td>
+													<td><a href="/removeevent/<%=e.uuid %>">Remove Event</a></td>
 													</tr>
 										<%
 												})
