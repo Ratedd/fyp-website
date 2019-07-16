@@ -10,6 +10,8 @@ const _ = require('lodash');
 const querystring = require('querystring');
 const fs = require('fs');
 const csvp = require('../util/csv-parser.js');
+const rimraf = require('rimraf');
+
 let failed = 0;
 let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getSubscribers error
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
@@ -419,7 +421,7 @@ const routes = () => {
 		return res.redirect('/login');
 	});
 
-	externalRoutes.get('/removeevent/:uuid', (req, res) => {
+	externalRoutes.get('/removeworkshop/:workshopId', (req, res) => {
 		if (!req.session.user) {
 			return res.redirect('/login');
 		}
@@ -427,7 +429,38 @@ const routes = () => {
 		if (!req.session.user.isAdmin) {
 			return res.redirect('/workshops');
 		}
+		const { workshopId } = req.params;
+		apiHelper.deleteWorkshop(req.session.user.uuid, workshopId).then(data => {
+			if (data) {
+				const deletePath = Path.join(process.cwd(), '/uploads/', 'registration/', 'workshop/', `${data.uuid}`);
+				rimraf.sync(deletePath);
+			}
+			return res.redirect('/admin');
+		}).catch(err => {
+			logger.error('[routes - /removeworkshop/:workshopId]\n', err);
+			return res.redirect('/admin');
+		});
+	});
 
+	externalRoutes.get('/removeevent/:eventId', (req, res) => {
+		if (!req.session.user) {
+			return res.redirect('/login');
+		}
+
+		if (!req.session.user.isAdmin) {
+			return res.redirect('/workshops');
+		}
+		const { eventId } = req.params;
+		apiHelper.deleteEvent(req.session.user.uuid, eventId).then(data => {
+			if (data) {
+				const deletePath = Path.join(process.cwd(), '/uploads/', 'registration/', 'event/', `${data.uuid}`);
+				rimraf.sync(deletePath);
+			}
+			return res.redirect('/admin');
+		}).catch(err => {
+			logger.error('[routes - /removeevent/:eventId]\n', err);
+			return res.redirect('/admin');
+		});
 	});
 
 	return externalRoutes;

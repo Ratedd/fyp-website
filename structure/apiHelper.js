@@ -161,6 +161,24 @@ const apiHelper = {
 			logger.error('[apiHelper - /api/workshops/:userId]\n', err);
 			reject(err);
 		});
+	}),
+	deleteWorkshop: (userId, workshopId) => new Promise((resolve, reject) => {
+		axios.delete(`${process.env.API_BASE_LINK}/api/workshop/${userId}/${workshopId}`).then(response => {
+			logger.info('[apiHelper - /api/workshop/:userId/:workshopId]\n', response.data);
+			resolve(response.data);
+		}).catch(err => {
+			logger.error('[apiHelper - /api/workshop/:userId/:workshopId]\n', err);
+			reject(err);
+		});
+	}),
+	deleteEvent: (userId, eventId) => new Promise((resolve, reject) => {
+		axios.delete(`${process.env.API_BASE_LINK}/api/event/${userId}/${eventId}`).then(response => {
+			logger.info('[apiHelper - /api/event/:userId/:eventId]\n', response.data);
+			resolve(response.data);
+		}).catch(err => {
+			logger.error('[apiHelper - /api/event/:userId/:eventId]\n', err);
+			reject(err);
+		});
 	})
 };
 
