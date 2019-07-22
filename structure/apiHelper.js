@@ -40,7 +40,7 @@ const apiHelper = {
 		data.forEach(subscriber => {
 			setTimeout(() => {
 				axios.post(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${subscriber.id}&text=${message}`).then(response => {
-					logger.info('[apiHelper - sendAnnouncement(data, message)]\n', response);
+					logger.info('[apiHelper - sendAnnouncement(data, message)]\n', response.data);
 				}).catch(err => {
 					logger.error('[apiHelper - sendAnnouncement(data, message)]\n', err);
 					reject(err);
