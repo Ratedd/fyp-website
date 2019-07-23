@@ -17,6 +17,7 @@ let announcementStatus = 0; // 1 = success, 2 = sendAnnouncement error, 3 = getS
 let addworkshopStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
 let addeventStatus = 0; // 1 = fs.mkdirSync error, 2 = add workshop to db error, 3 = general fs error, 4 = success
 let registrationStatus = 0;
+let eventRegistrationStatus = 0;
 
 const routes = () => {
 	const externalRoutes = require('express').Router(); // eslint-disable-line new-cap
@@ -188,7 +189,7 @@ const routes = () => {
 		const { id } = req.params;
 		apiHelper.getEventByUUID(id).then(event => {
 			logger.info('[routes - /event/:id]\n', event);
-			res.render('event', { user: req.session.user, data: event.data, registrationStatus });
+			res.render('event', { user: req.session.user, data: event.data, eventRegistrationStatus });
 		}).catch(err => {
 			logger.error('[routes - /event/:id]\n', err);
 			res.redirect('/events');
@@ -319,7 +320,11 @@ const routes = () => {
 			const classification = parseInt(workshopOrEvent, 10) === 1 ? 'workshop' : 'event';
 
 			if (err) {
-				registrationStatus = 2;
+				if (classification === 'workshop') {
+					registrationStatus = 2;
+				} else {
+					eventRegistrationStatus = 2;
+				}
 				logger.error('[routes - /upload_file | Formidable]', err);
 				return res.redirect(`/${classification}/${uuid}`);
 			}
@@ -335,7 +340,11 @@ const routes = () => {
 			if (!uploadDirExists) {
 				fs.mkdirSync(uploadPath, { recursive: true }, mkErr => {
 					if (mkErr) {
-						registrationStatus = 3;
+						if (classification === 'workshop') {
+							registrationStatus = 3;
+						} else {
+							eventRegistrationStatus = 3;
+						}
 						logger.error('[routes - /upload_file: mkDir()]\n', mkErr);
 						return res.redirect(`/${classification}/${uuid}`);
 					}
@@ -347,11 +356,19 @@ const routes = () => {
 					apiHelper.addAttendance(classification, uuid, csvData, WEname).then(done => {
 						if (done.code && done.code === 'BadRequest') {
 							logger.info('[routes - /upload_file]\n', done);
-							registrationStatus = 5;
+							if (classification === 'workshop') {
+								registrationStatus = 5;
+							} else {
+								eventRegistrationStatus = 5;
+							}
 							return res.redirect(`/${classification}/${uuid}`);
 						}
 						logger.info('[routes - /upload_file]\n', done);
-						registrationStatus = 1;
+						if (classification === 'workshop') {
+							registrationStatus = 1;
+						} else {
+							eventRegistrationStatus = 1;
+						}
 						return res.redirect(`/${classification}/${uuid}`);
 					}).catch(err => {
 						logger.error('[routes - /upload_file]\n', err);
@@ -362,7 +379,11 @@ const routes = () => {
 					return res.redirect(`/${classification}/${uuid}`);
 				});
 			}).catch(uploadErr => {
-				registrationStatus = 3;
+				if (classification === 'workshop') {
+					registrationStatus = 3;
+				} else {
+					eventRegistrationStatus = 3;
+				}
 				logger.error(`[routes - /add${classification}]\n`, uploadErr);
 				return res.redirect(`/${classification}/${uuid}`);
 			});
@@ -379,6 +400,7 @@ const routes = () => {
 				logger.error('[routes - /attendance/:workshopOrEvent/:id]\n', err);
 				return res.redirect('/admin');
 			});
+			return;
 		}
 		apiHelper.getEventAttendanceByUUID(id).then(data => {
 			logger.info('[routes - /attendance/:workshopOrEvent/:id]\n', data);
